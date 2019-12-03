@@ -1,22 +1,53 @@
 <template>
-  <PokeList :imageUrl="imageUrl" />
+  <div class="pokemon">
+    <h1 class="titulo">Pokédex</h1>
+    <div class="conteudo">
+      <h3>Search Pokemon
+          <!-- <font-awesome-icon :icon="['fa', 'search']"/> -->
+         <!--  <i class="fas fa-search"></i> -->
+      </h3>
+      <div class="lista" >
+        <!-- <div class="avatar">
+            <div class="card">
+                <img class="logo" height="200" width="200" src="../../assets/pokedex-logo.jpg" alt="">
+                <div class="tipo"></div> 
+            </div>
+        </div> -->
+        <ul class="linha" >
+          <li v-for="(pokemon,index) in pokemons " :key="poke+index" >
+            
+            <h3>{{("000"+ (index+1)).slice(-3)}} {{pokemon.name}} {{pokemon.id}}
+              <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
+            </h3>
+
+          </li>
+         <!--  <li :id="pokemon.id" :value="pokemon.id" v-for="(pokemon) in pokemons" :key="pokemon.id" >
+            <span>ID: {{("000"+ pokemon.id).slice(-3)}}</span>
+            <a class="pokemon" href="#"> {{pokemon.species.name.toUpperCase()}}    
+                <img class="minuatura" height="40" width="40" :src="pokemon.sprites.front_default">
+            </a>
+          </li> -->
+        </ul>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import PokeList from './list/PokeList'
 
 import axios from 'axios'
 /* import $ from 'jquery' */
 export default {
   name: 'pokedex',
-  components:{
-    PokeList
-  },
-  
+  props: [
+    'imageUrl'
+  ],
   data(){
     return {
-     imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'
-     
+      pokemons: [],
+      nextUrl: '',
+      url:"https://pokeapi.co/api/v2/pokemon",
+      id:''
     }
   },
   created(){
@@ -31,9 +62,10 @@ export default {
           let info = res.data
           this.nextUrl = info.next;
           info.results.forEach(pokemon => {
-            pokemon.id = pokemon.url.split('/')
+            /* pokemon.id = pokemon.url.split('/')
               .filter(function(part) { return !!part;  }).pop()
-              console.log(pokemon)
+              console.log(pokemon) */
+            this.id = pokemon.id
             this.pokemons.push(pokemon)
           });
         })
@@ -63,11 +95,11 @@ export default {
     font-weight: bolder;
 }
 .conteudo{
-    background-image: url(../assets/pokedex-fundo.png);
+    background-image: url(../../assets/pokedex-fundo.png);
     padding:  2px 5px 5px 5px;
     border-radius: 3px;
-    width: 500px;
-    height: 355px;
+    width: 310px;
+    height: 600px;
     background-color: whitesmoke;
     margin: 20px auto 0 auto;
     h3{
@@ -84,8 +116,8 @@ export default {
     .lista{
       border-radius: 7px ;
       border: 3px solid black;
-      width:490px;
-      height: 300px;
+      width:310px;
+      height: 500px;
       margin:auto;
       padding:0 ;
       background-color: whitesmoke;
@@ -95,7 +127,7 @@ export default {
       scrollbar-color: #ff2c2c rgb(219, 108, 108);
       -webkit-scrollbar-color: #ff2c2c rgb(219, 108, 108);
       scrollbar-width: thin;
-      .avatar{
+      /* .avatar{
         display: flex;
         justify-content: center;
         position: sticky;
@@ -164,18 +196,24 @@ export default {
           }
           
         }
-      }
+      } */
       .linha{
+        
+        padding-left: 0px;
         list-style-type: none;
         line-height: 40px;
-        width: 55%;
+        width:100%;
         li{
           cursor: pointer;
-          width:247px;
-          background-color: #ff2c2c; 
+          width:100%;
+           
           border-left:  3px solid black;
           display: flex;
           justify-content: flex-end;
+          h3{
+            width: 100%;
+            border:none;
+          }
           span{padding-left: 5px;
             border-left: 5px solid rgb(219, 108, 108);
             background-color: whitesmoke;
