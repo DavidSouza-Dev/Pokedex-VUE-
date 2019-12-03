@@ -13,13 +13,14 @@
                 <div class="tipo"></div> 
             </div>
         </div>
-        <ul class="linha" >
-          
-             <li  v-for="pokemon in pokemons" :key="pokemon.id"  v-html="renderiza(pokemon)">
-
-             </li>
-          
-        </ul>
+        <div class="linha" >
+          <li :id="pokemon.id" :value="pokemon.id" v-for="(pokemon) in pokemons" :key="pokemon.id" >
+            <span>ID: {{("000"+ pokemon.id).slice(-3)}}</span>
+            <a class="pokemon" href="#"> {{pokemon.species.name.toUpperCase()}}    
+                <img class="minuatura" height="40" width="40" :src="pokemon.sprites.front_default">
+            </a>
+          </li>
+        </div>
       </div>
     </div>
   </div>
@@ -27,7 +28,8 @@
 
 <script>
 
-import $ from 'jquery'
+
+/* import $ from 'jquery' */
 export default {
   name: 'pokedex',
   props: {
@@ -36,22 +38,22 @@ export default {
   data(){
     return {
       pokemons: []
+     
     }
   },
   created(){
-    for(var i=1; i<=6; i++){
+    for(var i=1; i<=10; i++){
+      
       let url = `https://pokeapi.co/api/v2/pokemon/${i}`
-
-       this.$http.get(url)
+      this.$http.get(url)
         .then(res    => res.json())
-        .then(data => this.pokemons.push(data))
+        .then(data => this.pokemons.push(data), console.log(this.pokemons))
     }
     
   },
   methods:{
-    
-    renderiza(pokemon){
-      var id = ("000"+ pokemon.id).slice(-3);
+    /*renderiza(pokemon){
+       var id = ("000"+ pokemon.id).slice(-3);
       var nome = pokemon.species.name.toUpperCase();
       var avatar = pokemon.sprites.front_default;
       console.log(pokemon.species.name)
@@ -61,11 +63,11 @@ export default {
           <a class="pokemon" href="#"> ${nome}    
               <img class="minuatura" "height="40" width="40"src=${avatar}>
           </a>
-      </li>`);
+      </li>`); */
       /* console.log(id)
       console.log(nome)
-      console.log(avatar) */
-    }
+      console.log(avatar)
+    } */
     
     
   },
