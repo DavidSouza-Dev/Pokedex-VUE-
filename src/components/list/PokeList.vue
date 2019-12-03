@@ -16,7 +16,7 @@
         <ul class="linha" >
           <li v-for="(pokemon,index) in pokemons " :key="poke+index" >
             
-            <h3>{{("000"+ (index+1)).slice(-3)}} {{pokemon.name}} {{pokemon.id}}
+            <h3><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
 
@@ -40,7 +40,8 @@ import axios from 'axios'
 export default {
   name: 'pokedex',
   props: [
-    'imageUrl'
+    'imageUrl',
+    
   ],
   data(){
     return {
@@ -96,7 +97,7 @@ export default {
 }
 .conteudo{
     background-image: url(../../assets/pokedex-fundo.png);
-    padding:  2px 5px 5px 5px;
+    padding:  2px 5px 5px 1px;
     border-radius: 3px;
     width: 310px;
     height: 600px;
@@ -211,12 +212,26 @@ export default {
           display: flex;
           justify-content: flex-end;
           h3{
+            color:black;
+            text-transform: capitalize;
             width: 100%;
             border:none;
+            display: flex;
+            justify-content: flex-start;
+            padding-right: 1rem;
+            padding-left: 0.2rem;
+            background-image: linear-gradient(to bottom, rgb(202, 201, 201), rgb(223, 223, 223),
+             rgb(202, 201, 201));
+            -webkit-text-stroke-width: .4px;
+            -webkit-text-stroke-color: transparent;
           }
-          span{padding-left: 5px;
-            border-left: 5px solid rgb(219, 108, 108);
-            background-color: whitesmoke;
+          span{
+            padding-left: 1rem;
+            margin-right: 2rem;
+           
+          }
+          img{
+            margin-left:auto;
           }
            a{
             text-align:right;
