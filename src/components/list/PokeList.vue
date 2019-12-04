@@ -21,6 +21,9 @@
             </h3>
 
           </li>
+          <div class="scroll" ref="infinitescroll">
+
+          </div>
          <!--  <li :id="pokemon.id" :value="pokemon.id" v-for="(pokemon) in pokemons" :key="pokemon.id" >
             <span>ID: {{("000"+ pokemon.id).slice(-3)}}</span>
             <a class="pokemon" href="#"> {{pokemon.species.name.toUpperCase()}}    
@@ -48,7 +51,8 @@ export default {
       pokemons: [],
       nextUrl: '',
       url:"https://pokeapi.co/api/v2/pokemon",
-      id:''
+      id:'',
+      currentUrl: url
     }
   },
   created(){
@@ -57,23 +61,40 @@ export default {
   },
   methods:{
    
-   buscaDados(){
-     axios.get(this.url)
-        .then(res => {
-          let info = res.data
-          this.nextUrl = info.next;
-          info.results.forEach(pokemon => {
-            /* pokemon.id = pokemon.url.split('/')
-              .filter(function(part) { return !!part;  }).pop()
-              console.log(pokemon) */
-            this.id = pokemon.id
-            this.pokemons.push(pokemon)
-          });
-        })
-   }
-    
+  buscaDados(){
+    axios.get(this.url)
+      .then(res => {
+        let info = res.data
+        this.nextUrl = info.next;
+        info.results.forEach(pokemon => {
+          /* pokemon.id = pokemon.url.split('/')
+            .filter(function(part) { return !!part;  }).pop()
+            console.log(pokemon) */
+          this.id = pokemon.id
+          this.pokemons.push(pokemon)
+        });
+      })
+  },
+  eventScroll(){
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry =>{
+        if(entry.intersectionRatio > 0 && this.nextUrl){
+          this.next();
+        }
+      });
+    });
+
+    observer.observe(this.$refs.infinitescroll)
+  },
+  next(){
+    this.currentUrl = this.nextUrl;
+    this.buscaDados();
+  }
     
   },
+  mounted(){
+    this.eventScroll();
+  }
   
 }
 </script>
@@ -110,7 +131,7 @@ export default {
       color: white;
       border: 3px solid black;
       
-      margin: 0 auto 10px auto;
+      margin: 0 auto 1px auto;
       text-align: center;
       background-image: linear-gradient(to bottom, rgb(2, 83, 206), rgb(26, 113, 225), rgb(2, 83, 206));
     }
@@ -207,14 +228,13 @@ export default {
         li{
           cursor: pointer;
           width:100%;
-           
-          border-left:  3px solid black;
           display: flex;
-          justify-content: flex-end;
+          
           h3{
-            color:black;
+            color:rgba(0, 0, 0, 0.712);
             text-transform: capitalize;
             width: 100%;
+            margin: 1px 0;
             border:none;
             display: flex;
             justify-content: flex-start;
@@ -224,14 +244,15 @@ export default {
              rgb(202, 201, 201));
             -webkit-text-stroke-width: .4px;
             -webkit-text-stroke-color: transparent;
+            justify-content: flex-end;
           }
           span{
             padding-left: 1rem;
-            margin-right: 2rem;
+            margin-right: auto;
            
           }
           img{
-            margin-left:auto;
+            margin-left: 1.2rem;
           }
            a{
             text-align:right;
