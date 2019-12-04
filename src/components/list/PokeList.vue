@@ -52,7 +52,7 @@ export default {
       nextUrl: '',
       url:"https://pokeapi.co/api/v2/pokemon",
       id:'',
-      currentUrl: url
+      currentUrl: url //possivel erro
     }
   },
   created(){
