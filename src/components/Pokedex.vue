@@ -5,7 +5,7 @@
 <script>
 import PokeList from './list/PokeList'
 
-import axios from 'axios'
+/* import axios from 'axios' */
 /* import $ from 'jquery' */
 export default {
   name: 'pokedex',
@@ -19,7 +19,7 @@ export default {
      
     }
   },
-  created(){
+  /* created(){
     this.buscaDados();
     
   },
@@ -40,7 +40,7 @@ export default {
    }
     
     
-  },
+  }, */
   
 }
 </script>

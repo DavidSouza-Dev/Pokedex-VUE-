@@ -7,30 +7,22 @@
          <!--  <i class="fas fa-search"></i> -->
       </h3>
       <div class="lista" >
-        <!-- <div class="avatar">
-            <div class="card">
-                <img class="logo" height="200" width="200" src="../../assets/pokedex-logo.jpg" alt="">
-                <div class="tipo"></div> 
-            </div>
-        </div> -->
+        
         <ul class="linha" >
-          <li v-for="(pokemon,index) in pokemons " :key="poke+index" >
-            
-            <h3><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
+          <li class="poke" v-for="(pokemon,index) in pokemons " :key="index" >
+            <h3 class="poke" @click="clickon(pokemon.url), show=!show " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
-
           </li>
           <div class="scroll" ref="infinitescroll">
 
           </div>
-         <!--  <li :id="pokemon.id" :value="pokemon.id" v-for="(pokemon) in pokemons" :key="pokemon.id" >
-            <span>ID: {{("000"+ pokemon.id).slice(-3)}}</span>
-            <a class="pokemon" href="#"> {{pokemon.species.name.toUpperCase()}}    
-                <img class="minuatura" height="40" width="40" :src="pokemon.sprites.front_default">
-            </a>
-          </li> -->
+          
         </ul>
+        <div class="detalhes" v-show="show" @click="show=!show">
+            {{name}}
+            <img :src="img">
+          </div>
       </div>
     </div>
   </div>
@@ -51,8 +43,10 @@ export default {
       pokemons: [],
       nextUrl: '',
       url:"https://pokeapi.co/api/v2/pokemon",
-      id:'',
-      currentUrl: url //possivel erro
+      name:'',
+      img:'',
+      show:false,
+      currentUrl: ''
     }
   },
   created(){
@@ -70,8 +64,9 @@ export default {
           /* pokemon.id = pokemon.url.split('/')
             .filter(function(part) { return !!part;  }).pop()
             console.log(pokemon) */
-          this.id = pokemon.id
+          this.id = pokemon.id;
           this.pokemons.push(pokemon)
+          /* console.log(this.pokemons) */
         });
       })
   },
@@ -87,13 +82,25 @@ export default {
     observer.observe(this.$refs.infinitescroll)
   },
   next(){
-    this.currentUrl = this.nextUrl;
+    this.url = this.nextUrl;
     this.buscaDados();
+  },
+  clickon(a){
+    
+     axios.get(a)
+      .then(res => {
+        let info = res.data
+        console.log(info)
+        this.name = info.name
+        this.img = info.sprites.front_default
+      })
+    
   }
     
   },
   mounted(){
     this.eventScroll();
+   
   }
   
 }
@@ -130,12 +137,12 @@ export default {
       -webkit-text-stroke-color: black;
       color: white;
       border: 3px solid black;
-      
       margin: 0 auto 1px auto;
       text-align: center;
       background-image: linear-gradient(to bottom, rgb(2, 83, 206), rgb(26, 113, 225), rgb(2, 83, 206));
     }
     .lista{
+      position: relative;
       border-radius: 7px ;
       border: 3px solid black;
       width:310px;
@@ -146,79 +153,10 @@ export default {
       display:flex;
       text-decoration: none;
       overflow-y: auto;
-      scrollbar-color: #ff2c2c rgb(219, 108, 108);
-      -webkit-scrollbar-color: #ff2c2c rgb(219, 108, 108);
+      scrollbar-color: #2e2e2e rgb(199, 199, 199);
+      -webkit-scrollbar-color: #2e2e2e rgb(199, 199, 199);
       scrollbar-width: thin;
-      /* .avatar{
-        display: flex;
-        justify-content: center;
-        position: sticky;
-        top: 0;
-        left: 0;
-        margin:0;
-        width: 230px;
-        background-color: transparent;
-        .maisinfo{
-          position: absolute;
-          cursor: pointer;
-          bottom: 0;
-          width: 220.5px;
-          line-height: 37px;
-          order: 1;
-          background-image: linear-gradient(to bottom, rgb(2, 83, 206), rgb(26, 113, 225), rgb(2, 83, 206));
-          text-align: center;
-          color: white;
-          margin-top: 20px;
-          transition: all 0.5s;
-          &:active{
-            transition: all 0s;
-            color: black;
-            background-image: linear-gradient(to bottom, rgb(164, 177, 200), rgb(180, 200, 227), rgb(164, 177, 200));
-          }
-        }
-        .card{
-          z-index:-1;
-          padding: 25px 20px 50px 20px;
-          width: 220px;
-          display: flex;
-          align-items: center;
-          background-color: transparent;
-          border-radius: 0!important;
-          .logo{
-            margin:20px;
-            height: 200px;
-            width: 200px;
-          }
-          .avatar-card{
-            cursor: pointer;
-            margin-top: -3px;
-            height: 96px!important;
-            width:96px!important;
-            animation: bounce 0.5s linear;
-            &:hover{
-              animation: bounce 0.5s linear;
-            }
-          }
-          .stats-name{
-            margin-left: -5px;
-          }
-          .tipo{
-            display: flex;
-            order: 1;
-          }
-          .nome-tipo{
-            margin: 5px;
-            padding: 5px 8px 8px 8px;
-            line-height: 8px;
-            border-radius: 15px;
-            background-color: lightgray;
-            text-align: center;
-            width: 90px!important;
-            order:1;
-          }
-          
-        }
-      } */
+      
       .linha{
         
         padding-left: 0px;
@@ -226,11 +164,13 @@ export default {
         line-height: 40px;
         width:100%;
         li{
+         
           cursor: pointer;
           width:100%;
           display: flex;
           
           h3{
+            z-index: 99!important;
             color:rgba(0, 0, 0, 0.712);
             text-transform: capitalize;
             width: 100%;
@@ -269,6 +209,15 @@ export default {
         }
       }
 
+    }
+    .detalhes{
+      z-index: 999;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      width: 250px;
+      height: 400px;
+      background-color: aliceblue
     }
 
 }
