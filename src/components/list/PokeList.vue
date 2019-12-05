@@ -7,22 +7,36 @@
          <!--  <i class="fas fa-search"></i> -->
       </h3>
       <div class="lista" >
-        
+        <!-- lista de pokemons -->
         <ul class="linha" >
           <li class="poke" v-for="(pokemon,index) in pokemons " :key="index" >
             <h3 class="poke" @click="clickon(pokemon.url), show=!show " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
           </li>
-          <div class="scroll" ref="infinitescroll">
-
-          </div>
-          
+          <div class="scroll" ref="infinitescroll"></div>
         </ul>
-        <div class="detalhes" v-show="show" @click="show=!show">
-            {{name}}
-            <img :src="img">
+        <!-- MODAL -->
+        <div class="modalDetalhes" v-show="show" @click="show=!show">
+          <img class="avatar" :src="img" ref="avatarpoke">
+          
+          <div class="sombra"></div>
+          
+          <div class="detalhes">
+            <span class="nome">{{pokemon.nome}}</span>
+            <div class="caracteristicas">
+              <span class="peso">{{pokemon.peso}}</span>
+              <span class="tipo" v-for="(tipo,id) in pokemon.tipo" :key="id" >
+                {{tipo}}
+              </span>
+              <span class="altura">{{pokemon.altura}}</span>
+            </div>
+            
+            <div class="status" v-for="(stat,id) in pokemon.stats" :key="id">
+              {{stat}} 
+            </div>
           </div>
+        </div>
       </div>
     </div>
   </div>
@@ -46,7 +60,15 @@ export default {
       name:'',
       img:'',
       show:false,
-      currentUrl: ''
+      currentUrl: '',
+      pokemon:{
+        nome:'',
+        tipo:[],
+        peso:'',
+        altura:'',
+        stats:[]
+
+      }
     }
   },
   created(){
@@ -58,9 +80,9 @@ export default {
   buscaDados(){
     axios.get(this.url)
       .then(res => {
-        let info = res.data
-        this.nextUrl = info.next;
-        info.results.forEach(pokemon => {
+        let data = res.data
+        this.nextUrl = data.next;
+        data.results.forEach(pokemon => {
           /* pokemon.id = pokemon.url.split('/')
             .filter(function(part) { return !!part;  }).pop()
             console.log(pokemon) */
@@ -85,15 +107,25 @@ export default {
     this.url = this.nextUrl;
     this.buscaDados();
   },
-  clickon(a){
+  clickon(pokedata){
     
-     axios.get(a)
-      .then(res => {
-        let info = res.data
-        console.log(info)
-        this.name = info.name
-        this.img = info.sprites.front_default
-      })
+    axios.get(pokedata)
+    .then(res => {
+      let info = res.data
+      /* console.log(info) */
+      this.img = info.sprites.front_default //tem q mudar esse endereço
+      this.pokemon.nome = info.name;
+      info.types.forEach(type => 
+        this.pokemon.tipo.push(type.type.name
+      ));
+      this.pokemon.peso = info.weight;
+      this.pokemon.altura = info.height;
+      var status = info.stats
+      /* console.log(status[0].base_stat) */
+      status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
+
+      
+    })
     
   }
     
@@ -124,15 +156,16 @@ export default {
     font-weight: bolder;
 }
 .conteudo{
+  position: relative;
     background-image: url(../../assets/pokedex-fundo.png);
     padding:  2px 5px 5px 1px;
     border-radius: 3px;
     width: 310px;
-    height: 600px;
+    height: 530px;
     background-color: whitesmoke;
     margin: 20px auto 0 auto;
     h3{
-      position:relative;
+     
       -webkit-text-stroke-width: .4px;
       -webkit-text-stroke-color: black;
       color: white;
@@ -142,7 +175,7 @@ export default {
       background-image: linear-gradient(to bottom, rgb(2, 83, 206), rgb(26, 113, 225), rgb(2, 83, 206));
     }
     .lista{
-      position: relative;
+      
       border-radius: 7px ;
       border: 3px solid black;
       width:310px;
@@ -158,7 +191,7 @@ export default {
       scrollbar-width: thin;
       
       .linha{
-        
+        margin: 0;
         padding-left: 0px;
         list-style-type: none;
         line-height: 40px;
@@ -210,14 +243,35 @@ export default {
       }
 
     }
-    .detalhes{
-      z-index: 999;
+    .modalDetalhes{
+      z-index: 99;
       position: absolute;
-      top: 30px;
-      left: 0;
-      width: 250px;
-      height: 400px;
-      background-color: aliceblue
+      left: 2.6px;
+      width: 99%;
+      height: 93.2%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.336);
+      background-image: radial-gradient(circle at 50% 32%, #286da7 43%, #2c2c30 73%);
+      border-radius: 3px;
+      .avatar{
+        width: 96px;
+        background-color: transparent;
+        
+      }
+      .sombra{
+        background-image: radial-gradient(closest-side at 49% 67% ,#1b1b1b 3px, transparent 60%);
+      }
+      .detalhes{
+        width: 98%;
+        height: 65%;
+        background-color: whitesmoke;
+        border-radius: 10px;
+        /* margin: auto 5px 10px 5px; */
+
+      }
     }
 
 }
