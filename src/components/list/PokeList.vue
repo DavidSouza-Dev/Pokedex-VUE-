@@ -31,9 +31,11 @@
               </span>
               <span class="altura">{{pokemon.altura}}</span>
             </div>
-            
+           
             <div class="status" v-for="(stat,id) in pokemon.stats" :key="id">
-              {{stat}} 
+              <!-- <div class="status-nome">{{stat}}</div> -->
+              <!-- <div class="bar-stats" v-else >{{stat}}</div > -->
+               {{stat}}
             </div>
           </div>
         </div>
@@ -124,7 +126,10 @@ export default {
       /* console.log(status[0].base_stat) */
       status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
 
-      
+      /* if(parseInt(status).isNaN())
+      console.log("true") */
+
+      console.log(parseInt("VALOR"+status.base_stat))
     })
     
   }
