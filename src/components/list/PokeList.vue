@@ -2,8 +2,13 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <h3>Search Pokemon
-          <!-- <font-awesome-icon :icon="['fa', 'search']"/> -->
+      <h3 class="search">
+        <input type="search" name="" id="" placeholder="Search Pokemon">
+        <div class="icon">
+         
+          <font-awesome-icon :icon="['fas', 'search']"/>
+        </div>
+          
          <!--  <i class="fas fa-search"></i> -->
       </h3>
       <div class="lista" >
@@ -16,27 +21,33 @@
           </li>
           <div class="scroll" ref="infinitescroll"></div>
         </ul>
-        <!-- MODAL -->
-        <div class="modalDetalhes" v-show="show" @click="show=!show">
+        <!-------------------- MODAL ------------------->
+        <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
+          <div class="fechar">
+            <font-awesome-icon :icon="['fas', 'times']"/>
+          </div>
           <img class="avatar" :src="img" ref="avatarpoke">
-          
           <div class="sombra"></div>
           
           <div class="detalhes">
             <span class="nome">{{pokemon.nome}}</span>
+            <!-- CARACTERISTICAS -->
             <div class="caracteristicas">
-              <span class="peso">{{pokemon.peso}}</span>
-              <span class="tipo" v-for="(tipo,id) in pokemon.tipo" :key="id" >
+              <span class="peso">Weight: {{pokemon.peso}} Ib's</span>
+              <span class="altura">Height: {{pokemon.altura}}'</span>
+              <span class="tipo" v-for="(tipo,id) in pokemon.tipo" :key="id"  >
                 {{tipo}}
               </span>
-              <span class="altura">{{pokemon.altura}}</span>
+              
             </div>
-           
-            <div class="status" v-for="(stat,id) in pokemon.stats" :key="id">
-              <!-- <div class="status-nome">{{stat}}</div> -->
-              <!-- <div class="bar-stats" v-else >{{stat}}</div > -->
-               {{stat}}
+            <!-- STATUS -->
+            <div class="card-status">
+              <div class="status" v-for="(stat,id) in pokemon.stats" :key="id">
+                <div v-if="id % 2 == 0" style="color:black">{{stat}}</div>
+                <div v-else-if=" id%2==1" style="backgroundColor:gray" :style="{width: `${stat}`+'px', height:10+'px'}"></div >
+              </div>
             </div>
+            
           </div>
         </div>
       </div>
@@ -47,7 +58,7 @@
 <script>
 
 import axios from 'axios'
-/* import $ from 'jquery' */
+import $ from 'jquery'
 export default {
   name: 'pokedex',
   props: [
@@ -126,18 +137,34 @@ export default {
       /* console.log(status[0].base_stat) */
       status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
 
-      /* if(parseInt(status).isNaN())
-      console.log("true") */
-
-      console.log(parseInt("VALOR"+status.base_stat))
     })
     
+  },
+  zeraModal(){
+    $(".tipo").remove();
+    $(".status").remove();
+    
+  },
+  
+
+  //TODO
+  renderizaCorTipo(){
+    let tipo = this.pokemon.tipo;
+    console.log(tipo)
+    switch (tipo) {
+      case 'normal':
+        $(".tipo").css({backgroundColor:"gray"}) 
+        break;
+      case 'fire':
+        $(".tipo").css({backgroundColor:"orange"});
+        break;
+    } 
   }
     
   },
   mounted(){
     this.eventScroll();
-   
+    
   }
   
 }
@@ -145,49 +172,74 @@ export default {
 
 
 <style lang="scss" scoped>
-  body{
-    background-color: black!important;
-}
+ 
 
 
 .titulo{
     font-size: 50px;
-    color: rgb(253, 228, 0);
-    text-shadow: rgb(0, 102, 255) 1px 0px 2px;
-     -webkit-text-stroke-width: 1.0px;
-    -webkit-text-stroke-color:  rgb(0, 102, 255);
-    margin-top: 50px;
+    color: #ffdd21;
+    text-shadow: #e9e9e9 1px 0px 2px;
+    -webkit-text-stroke-width: 2px;
+    -webkit-text-stroke-color: #00378d;
+    margin-top: 15px;
+    margin-bottom: 5px;
     text-align: center;
     font-weight: bolder;
 }
 .conteudo{
   position: relative;
-    background-image: url(../../assets/pokedex-fundo.png);
     padding:  2px 5px 5px 1px;
     border-radius: 3px;
-    width: 310px;
+    width: 90%;
+    max-width: 343.5px;
     height: 530px;
-    background-color: whitesmoke;
-    margin: 20px auto 0 auto;
-    h3{
-     
-      -webkit-text-stroke-width: .4px;
-      -webkit-text-stroke-color: black;
+    /* background-color: white; */
+    margin: 10px auto 0 auto;
+    .search{
+      display: flex;
+      line-height: 1;
+      width: 100%;
+      height: 40px;
       color: white;
-      border: 3px solid black;
-      margin: 0 auto 1px auto;
+      background-color: white;
+      border: 2px solid black;
+      border-radius: 7px 7px 0 0 ;
+      margin: 0;
       text-align: center;
-      background-image: linear-gradient(to bottom, rgb(2, 83, 206), rgb(26, 113, 225), rgb(2, 83, 206));
+      input{
+        border-radius: 7px 7px 0 0;
+        padding-left: 2rem;
+        width: 90%;
+        height: inherit;
+        border:none
+      }
+      .icon{
+        cursor: pointer;
+        display: flex;
+        transform: scale(.6);
+        color: #05050580;
+        background-color: white;
+        font-size: 10px;
+        height: inherit;
+        width: 10%;
+        &:hover,&:focus{
+          color:black;
+        }
+        
+      }
+     /*  background-image: linear-gradient(to bottom, rgb(2, 83, 206), rgb(26, 113, 225), rgb(2, 83, 206)); */
     }
     .lista{
-      
-      border-radius: 7px ;
-      border: 3px solid black;
-      width:310px;
-      height: 500px;
+      display: flex;
+      justify-content: center;
+      border-radius:0 0 7px  7px ;
+      border: 2px solid black;
+      border-top: none;
+      width:100%;
+      height: 508px;
       margin:auto;
       padding:0 ;
-      background-color: whitesmoke;
+      background-color: #13232a;
       display:flex;
       text-decoration: none;
       overflow-y: auto;
@@ -196,33 +248,41 @@ export default {
       scrollbar-width: thin;
       
       .linha{
-        margin: 0;
+        margin: 3px 0;
         padding-left: 0px;
         list-style-type: none;
         line-height: 40px;
-        width:100%;
+        width:97%;
         li{
-         
           cursor: pointer;
           width:100%;
           display: flex;
-          
           h3{
+            
             z-index: 99!important;
-            color:rgba(0, 0, 0, 0.712);
+            color:rgb(253, 253, 253);
+            text-shadow: #0c0c0c 1px 0px 2px;
+            -webkit-text-stroke-width: 2px;
+            -webkit-text-stroke-color: #00378d;
             text-transform: capitalize;
             width: 100%;
             margin: 1px 0;
             border:none;
+            border-radius: 4px;
             display: flex;
             justify-content: flex-start;
             padding-right: 1rem;
             padding-left: 0.2rem;
-            background-image: linear-gradient(to bottom, rgb(202, 201, 201), rgb(223, 223, 223),
-             rgb(202, 201, 201));
+            background-image: linear-gradient(to bottom, hsl(207, 61%, 41%), #4d7ea7,
+             hsl(207, 61%, 41%));
             -webkit-text-stroke-width: .4px;
             -webkit-text-stroke-color: transparent;
             justify-content: flex-end;
+            /* &:focus, &:active{
+              .modalDetalhes{
+                transform: scaleY(1)!important;
+              }
+            } */
           }
           span{
             padding-left: 1rem;
@@ -249,18 +309,45 @@ export default {
 
     }
     .modalDetalhes{
+      position: relative;
       z-index: 99;
       position: absolute;
-      left: 2.6px;
-      width: 99%;
-      height: 93.2%;
+      left: 2.8px;
+      width: 98.2%;
+      height: 94.6%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       background-color: rgba(0, 0, 0, 0.336);
       background-image: radial-gradient(circle at 50% 32%, #286da7 43%, #2c2c30 73%);
-      border-radius: 3px;
+      border-radius:0 0 3px 3px;
+      
+       @media only screen and (max-width: 375px){
+        width: 98.5%;
+      }
+      .fechar{
+        position: absolute;
+        top:15px;
+        right: 15px;
+        width: 30px;
+        height: 30px;
+        color: #0009;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(255, 255, 255, 0.19);
+        border-radius: 50%;
+        transition: all .2s ease-in;
+        &:hover,&:focus{
+          color:black;
+          background-color: rgba(255, 255, 255, 0.664);
+        }
+        svg{
+          transform: scale(.5);
+        }
+
+      }
       .avatar{
         width: 96px;
         background-color: transparent;
@@ -271,11 +358,58 @@ export default {
       }
       .detalhes{
         width: 98%;
-        height: 65%;
+        height: 68%;
         background-color: whitesmoke;
         border-radius: 10px;
         /* margin: auto 5px 10px 5px; */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-evenly;
+        .nome{
+          text-transform: uppercase;
+          font-weight: bold;
+        }
+        .caracteristicas{
+          display: flex;
+          flex-wrap: wrap;
+          width: 80%;
+          justify-content: space-evenly;
+          span{
+            margin:5px;
+            text-transform: capitalize;
+            background-color: #c8c1c1;
+            border-radius: 10px;
+            width: 90px;
+            height: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+           span:nth-child(1), span:nth-child(2){
+              background-color: transparent!important;
+              width: 120px;
+              
+            }
+        }
+        .card-status{
+          width: 70%;
+          height: 215px;
+          .status:nth-child(odd){
+            text-align: left;
+            text-transform: uppercase;
+          }
+          .status:nth-child(even){
+            div{
+              border-radius: 10px;
+              background-image: linear-gradient(to right,  #286da7 50%, #0a1b29);
+              margin-bottom: 8px;
+            }
+          }
+          
 
+          
+        }
       }
     }
 
