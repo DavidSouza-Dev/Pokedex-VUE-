@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import PokeList from './list/PokeList'
+import PokeList from './view/PokeList'
 
 /* import axios from 'axios' */
 /* import $ from 'jquery' */

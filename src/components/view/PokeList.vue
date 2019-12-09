@@ -2,27 +2,29 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <h3 class="search">
-        <input type="search" name="" id="" placeholder="Search Pokemon">
-        <div class="icon">
-         
+      <form class="form" @submit.prevent="filtroEfeitoModal">
+        <input type="search" id="filtro" autocomplete="off" v-model="filter" placeholder="Search Pokemon by Id or Name">
+        <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
-        </div>
-          
-         <!--  <i class="fas fa-search"></i> -->
-      </h3>
+        </button>
+      </form>
       <div class="lista" >
         <!-- lista de pokemons -->
         <ul class="linha" >
-          <li class="poke" v-for="(pokemon,index) in pokemons " :key="index" >
-            <h3 class="poke" @click="clickon(pokemon.url), show=!show " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
+          <li class="poke" v-for="(pokemon,index) in listaPokemon " :key="index" >
+            <h3 class="poke" @click="clickon(pokemon.url), loadShow=!loadShow, efeitoModal(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
           </li>
           <div class="scroll" ref="infinitescroll"></div>
         </ul>
         <!-------------------- MODAL ------------------->
-        <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
+        <div class="charge"  v-show="loadShow">
+          <img src="../../static/POKEBALL.png" alt="">
+          <div class="load">Loading...</div>
+        </div>
+        
+        <div class="modalDetalhes" v-show="show" @click="show=!show, loadShow=!loadShow, zeraModal(),renderizaCorTipo()">
           <div class="fechar">
             <font-awesome-icon :icon="['fas', 'times']"/>
           </div>
@@ -72,8 +74,10 @@ export default {
       url:"https://pokeapi.co/api/v2/pokemon",
       name:'',
       img:'',
-      show:false,
       currentUrl: '',
+      filter:'',
+      loadShow:false,
+      show:false,
       pokemon:{
         nome:'',
         tipo:[],
@@ -87,6 +91,24 @@ export default {
   created(){
     this.buscaDados();
     
+  },
+  computed:{
+
+    listaPokemon(){ // /'[A-Z][a-z]* [A-Z][a-z]*/ 
+
+      if (this.filter){
+        let exp = new RegExp(this.filter.trim(), "i")
+        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
+        console.log(result[0].url);
+        this.clickon(result[0].url)
+        return this.pokemons
+      }
+      else{//tem q retornar tela de erro
+        return this.pokemons
+      }
+
+    }
+
   },
   methods:{
    
@@ -120,7 +142,7 @@ export default {
     this.url = this.nextUrl;
     this.buscaDados();
   },
-  clickon(pokedata){
+  clickon(pokedata){ //preenche modal
     
     axios.get(pokedata)
     .then(res => {
@@ -128,16 +150,36 @@ export default {
       /* console.log(info) */
       this.img = info.sprites.front_default //tem q mudar esse endereço
       this.pokemon.nome = info.name;
-      info.types.forEach(type => 
-        this.pokemon.tipo.push(type.type.name
-      ));
+      var total = $("caracteristicas").children()
+      console.log(total)
+      info.types.forEach(type => {
+        while(this.pokemon.tipo.lenght>0){
+          
+          this.pokemon.tipo.pop()
+        }
+        this.pokemon.tipo.push(type.type.name)
+        console.log(this.pokemon.tipo)
+      });
       this.pokemon.peso = info.weight;
       this.pokemon.altura = info.height;
       var status = info.stats
       /* console.log(status[0].base_stat) */
+      
       status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
 
     })
+    
+  },
+  efeitoModal(valorBoolean){
+    setTimeout(() => {
+      console.log("teste")
+      this.show = !valorBoolean;
+    }, 1000)
+  },
+  filtroEfeitoModal(){
+    this.loadShow=!this.loadShow;
+    
+    this.efeitoModal(this.show)
     
   },
   zeraModal(){
@@ -195,7 +237,7 @@ export default {
     height: 530px;
     /* background-color: white; */
     margin: 10px auto 0 auto;
-    .search{
+    .form{
       display: flex;
       line-height: 1;
       width: 100%;
@@ -222,6 +264,7 @@ export default {
         font-size: 10px;
         height: inherit;
         width: 10%;
+        border:none;
         &:hover,&:focus{
           color:black;
         }
@@ -308,9 +351,67 @@ export default {
       }
 
     }
+    .charge{
+      z-index: 99;
+      position: absolute;
+      left: 2.8px;
+      width: 98.2%;
+      height: 94.6%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.233);
+      
+      img{
+        height: 40px;
+        width: 40px;
+        animation: load .9s linear;
+        animation-iteration-count: infinite;
+      }
+      .load{
+        font-size: 28px;
+        font-weight: bold;
+        color: red;
+        background:#ffffffd4;
+        margin-top: 25px;
+        border-radius: 17px;
+        width: 151px;
+        height: 43px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        animation: loadColor .9s linear;
+        animation-iteration-count: infinite;
+      }
+    }
+
+    @keyframes loadColor {
+      0%{
+        color: red;
+        font-size: 28px;
+      }
+      50%{
+        color: black;
+        font-size: 25px;
+      }
+      100%{
+        color: red;
+        font-size: 28px;
+      }
+      
+    }
+    @keyframes load {
+      from {
+        -webkit-transform: rotate(0deg)
+      }
+      to {
+        -webkit-transform: rotate(360deg)
+      }
+    }
     .modalDetalhes{
       position: relative;
-      z-index: 99;
+      z-index: 999;
       position: absolute;
       left: 2.8px;
       width: 98.2%;
