@@ -3,7 +3,7 @@
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
       <form class="form" @submit.prevent="filtroEfeitoModal">
-        <input type="search" id="filtro" autocomplete="off" v-model="filter" placeholder="Search Pokemon by Id or Name">
+        <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
         </button>
@@ -12,19 +12,27 @@
         <!-- lista de pokemons -->
         <ul class="linha" >
           <li class="poke" v-for="(pokemon,index) in listaPokemon " :key="index" >
-            <h3 class="poke" @click="clickon(pokemon.url), loadShow=!loadShow, efeitoModal(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
+            <h3 class="poke" @click="clickOn(pokemon.url), loadShow=!loadShow, efeitoModal(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
           </li>
           <div class="scroll" ref="infinitescroll"></div>
         </ul>
         <!-------------------- MODAL ------------------->
+        <!-- efeito load -->
         <div class="charge"  v-show="loadShow">
           <img src="../../static/POKEBALL.png" alt="">
           <div class="load">Loading...</div>
         </div>
-        
-        <div class="modalDetalhes" v-show="show" @click="show=!show, loadShow=!loadShow, zeraModal(),renderizaCorTipo()">
+        <!-- Pokemon não encontrado -->
+        <div class="nao-encontrado" v-show="erroModal" @click="erroModal=false">
+          <div class="mensagem">Pokemon não encontrado! Tente Novamente.
+            <img src="../../static/pngguru.com.png"  height="70" width="60" alt="">
+          </div>
+          
+        </div>
+        <!-- Detalhes da procura -->
+        <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
           <div class="fechar">
             <font-awesome-icon :icon="['fas', 'times']"/>
           </div>
@@ -35,6 +43,9 @@
             <span class="nome">{{pokemon.nome}}</span>
             <!-- CARACTERISTICAS -->
             <div class="caracteristicas">
+             <!--  <div class="mensagem">Pokemon não encontrado! Tente Novamente.
+                <img src="../../static/pngguru.com.png"  height="70" width="60" alt="">
+              </div>  --> 
               <span class="peso">Weight: {{pokemon.peso}} Ib's</span>
               <span class="altura">Height: {{pokemon.altura}}'</span>
               <span class="tipo" v-for="(tipo,id) in pokemon.tipo" :key="id"  >
@@ -61,6 +72,7 @@
 
 import axios from 'axios'
 import $ from 'jquery'
+
 export default {
   name: 'pokedex',
   props: [
@@ -76,6 +88,7 @@ export default {
       img:'',
       currentUrl: '',
       filter:'',
+      erroModal:false,
       loadShow:false,
       show:false,
       pokemon:{
@@ -95,12 +108,19 @@ export default {
   computed:{
 
     listaPokemon(){ // /'[A-Z][a-z]* [A-Z][a-z]*/ 
-
       if (this.filter){
         let exp = new RegExp(this.filter.trim(), "i")
         let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
-        console.log(result[0].url);
-        this.clickon(result[0].url)
+        let urlArray = result[0].url.split('/')
+        let menosUm = urlArray.splice(-2,1)
+        console.log(result[0].url)
+        let ultimo = menosUm.pop()
+        var number = parseInt(ultimo,10)
+        if(number > 0){
+          this.clickOn(result[0].url)
+        }else{
+          console.log("error")
+    }
         return this.pokemons
       }
       else{//tem q retornar tela de erro
@@ -111,7 +131,6 @@ export default {
 
   },
   methods:{
-   
   buscaDados(){
     axios.get(this.url)
       .then(res => {
@@ -142,7 +161,7 @@ export default {
     this.url = this.nextUrl;
     this.buscaDados();
   },
-  clickon(pokedata){ //preenche modal
+  clickOn(pokedata){ //preenche modal
     
     axios.get(pokedata)
     .then(res => {
@@ -150,16 +169,17 @@ export default {
       /* console.log(info) */
       this.img = info.sprites.front_default //tem q mudar esse endereço
       this.pokemon.nome = info.name;
-      var total = $("caracteristicas").children()
-      console.log(total)
+      /* var total = $("caracteristicas").children()
+      console.log(total) */
       info.types.forEach(type => {
         while(this.pokemon.tipo.lenght>0){
-          
+          console.log(this.pokemon.tipo)
           this.pokemon.tipo.pop()
         }
         this.pokemon.tipo.push(type.type.name)
-        console.log(this.pokemon.tipo)
+        
       });
+      /* console.log(this.pokemon.tipo) */
       this.pokemon.peso = info.weight;
       this.pokemon.altura = info.height;
       var status = info.stats
@@ -167,19 +187,26 @@ export default {
       
       status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
 
+    }).catch(error => {
+      console.log(error)
     })
     
   },
   efeitoModal(valorBoolean){
     setTimeout(() => {
       console.log("teste")
+      this.loadShow=!this.loadShow;
       this.show = !valorBoolean;
     }, 1000)
   },
   filtroEfeitoModal(){
     this.loadShow=!this.loadShow;
-    
     this.efeitoModal(this.show)
+    
+  },
+  erroProcura(){
+    this.erroModal=!this.erroModal;
+    this.show=!this.show;
     
   },
   zeraModal(){
@@ -192,7 +219,7 @@ export default {
   //TODO
   renderizaCorTipo(){
     let tipo = this.pokemon.tipo;
-    console.log(tipo)
+    /* console.log(tipo) */
     switch (tipo) {
       case 'normal':
         $(".tipo").css({backgroundColor:"gray"}) 
@@ -384,6 +411,31 @@ export default {
         animation: loadColor .9s linear;
         animation-iteration-count: infinite;
       }
+    }
+    .nao-encontrado{
+      z-index: 99;
+      position: absolute;
+      left: 2.8px;
+      width: 98.2%;
+      height: 94.6%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+      background-color: rgba(0, 0, 0, 0.233);
+      .mensagem{
+        background: white;
+        width: 90%;
+        height: 200px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        font-size: 21px;
+        font-weight: bold;
+      }
+
     }
 
     @keyframes loadColor {
