@@ -296,7 +296,7 @@ export default {
 
 .titulo{
     font-size: 50px;
-    color: #ffdd21;
+    color: #ffde21f3;
     text-shadow: #e9e9e9 1px 0px 2px;
     -webkit-text-stroke-width: 2px;
     -webkit-text-stroke-color: #00378d;
