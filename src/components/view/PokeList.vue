@@ -576,7 +576,7 @@ export default {
         .caracteristicas{
           display: flex;
           flex-wrap: wrap;
-          width: 80%;
+          width: 92%;
           justify-content: space-evenly;
           span{
             margin:5px;
