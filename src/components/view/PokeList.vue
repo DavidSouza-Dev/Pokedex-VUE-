@@ -2,7 +2,7 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <form class="form" @submit.prevent="filtroEfeitoModal">
+      <form class="form" @submit.prevent="">
         <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
@@ -57,7 +57,7 @@
             <div class="card-status">
               <div class="status" v-for="(stat,id) in pokemon.stats" :key="id">
                 <div v-if="id % 2 == 0" style="color:black">{{stat}}</div>
-                <div v-else-if=" id%2==1" style="backgroundColor:gray" :style="{width: `${stat}`+'px', height:10+'px'}"></div >
+                <div v-else-if=" id % 2 == 1" style="backgroundColor:gray" :style="{width: `${stat}`+'px', height:10+'px'}"></div >
               </div>
             </div>
             
@@ -65,6 +65,7 @@
         </div>
       </div>
     </div>
+    <div class="copyrights">Developed by David Souza</div>
   </div>
 </template>
 
@@ -109,18 +110,22 @@ export default {
 
     listaPokemon(){ // /'[A-Z][a-z]* [A-Z][a-z]*/ 
       if (this.filter){
-        let exp = new RegExp(this.filter.trim(), "i")
-        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
-        let urlArray = result[0].url.split('/')
+        /* let exp = new RegExp(this.filter.trim(), "i")
+        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name)) */
+
+        /* ==============CONVERTENDO============== */
+       /*  let urlArray = result[0].url.split('/')
         let menosUm = urlArray.splice(-2,1)
         console.log(result[0].url)
         let ultimo = menosUm.pop()
-        var number = parseInt(ultimo,10)
+        var number = parseInt(ultimo,10) */
+        /* ==============CONVERTENDO============== */
+       /*  
         if(number > 0){
-          this.clickOn(result[0].url)
+          this.catchPokemon(result[0].url)
         }else{
           console.log("error")
-    }
+        } */
         return this.pokemons
       }
       else{//tem q retornar tela de erro
@@ -187,11 +192,44 @@ export default {
       
       status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
 
-    }).catch(error => {
-      console.log(error)
     })
-    
   },
+
+  catchPokemon(pokedata){ //preenche modal
+    
+    axios.get(pokedata)
+    .then(res => {
+      let info = res.data
+      /* console.log(info) */
+      this.img = info.sprites.front_default //tem q mudar esse endereço
+      this.pokemon.nome = info.name;
+      /* var total = $("caracteristicas").children()
+      console.log(total) */
+      info.types.forEach(type => {
+        while(this.pokemon.tipo.lenght>0){
+          console.log(this.pokemon.tipo)
+          this.pokemon.tipo.shift()
+        }
+        this.pokemon.tipo.push(type.type.name)
+        
+      });
+      /* console.log(this.pokemon.tipo) */
+      this.pokemon.peso = info.weight;
+      this.pokemon.altura = info.height;
+      var status = info.stats
+      /* console.log(status[0].base_stat) */
+      
+      status.forEach(stat =>{
+        while(this.pokemon.stats.lenght>0){
+          console.log(this.pokemon.tipo)
+          this.pokemon.stats.shift()
+        }
+        this.pokemon.stats.push(stat.stat.name,stat.base_stat)
+      } );
+
+    })
+  },
+
   efeitoModal(valorBoolean){
     setTimeout(() => {
       console.log("teste")
@@ -199,23 +237,25 @@ export default {
       this.show = !valorBoolean;
     }, 1000)
   },
+
   filtroEfeitoModal(){
     this.loadShow=!this.loadShow;
     this.efeitoModal(this.show)
     
   },
+
   erroProcura(){
     this.erroModal=!this.erroModal;
     this.show=!this.show;
     
   },
+
   zeraModal(){
     $(".tipo").remove();
     $(".status").remove();
     
   },
   
-
   //TODO
   renderizaCorTipo(){
     let tipo = this.pokemon.tipo;
@@ -242,7 +282,17 @@ export default {
 
 <style lang="scss" scoped>
  
+.pokemon{
+  position: relative;
+  .copyrights{
+    position: absolute;
+    bottom:-98px;
+    right: 36px;
+    font-size: 10px;
+    opacity: .7;
 
+  }
+}
 
 .titulo{
     font-size: 50px;
