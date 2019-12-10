@@ -2,7 +2,7 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <form class="form" @submit.prevent="">
+      <form class="form" @submit.prevent="filtroEfeitoModal">
         <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
@@ -110,22 +110,22 @@ export default {
 
     listaPokemon(){ // /'[A-Z][a-z]* [A-Z][a-z]*/ 
       if (this.filter){
-        /* let exp = new RegExp(this.filter.trim(), "i")
-        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name)) */
+        let exp = new RegExp(this.filter.trim(), "i")
+        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
 
         /* ==============CONVERTENDO============== */
-       /*  let urlArray = result[0].url.split('/')
+        let urlArray = result[0].url.split('/')
         let menosUm = urlArray.splice(-2,1)
         console.log(result[0].url)
         let ultimo = menosUm.pop()
-        var number = parseInt(ultimo,10) */
+        var number = parseInt(ultimo,10)
         /* ==============CONVERTENDO============== */
-       /*  
+        
         if(number > 0){
           this.catchPokemon(result[0].url)
         }else{
           console.log("error")
-        } */
+        }
         return this.pokemons
       }
       else{//tem q retornar tela de erro
