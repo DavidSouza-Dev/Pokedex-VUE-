@@ -10,6 +10,7 @@
       </form>
       <div class="lista" >
         <!-- lista de pokemons -->
+
         <ul class="linha" >
           <li class="poke" v-for="(pokemon,index) in listaPokemon " :key="index" >
             <h3 class="poke" @click="clickOn(pokemon.url), loadShow=!loadShow, efeitoModal(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
@@ -18,19 +19,23 @@
           </li>
           <div class="scroll" ref="infinitescroll"></div>
         </ul>
+
         <!-------------------- MODAL ------------------->
         <!-- efeito load -->
+
         <div class="charge"  v-show="loadShow">
           <img src="../../static/POKEBALL.png" alt="">
           <div class="load">Loading...</div>
         </div>
+
         <!-- Pokemon não encontrado -->
+
         <div class="nao-encontrado" v-show="erroModal" @click="erroModal=false">
           <div class="mensagem">Pokemon não encontrado! Tente Novamente.
             <img src="../../static/pngguru.com.png"  height="70" width="60" alt="">
           </div>
-          
         </div>
+
         <!-- Detalhes da procura -->
         <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
           <div class="fechar">
@@ -53,6 +58,7 @@
               </span>
               
             </div>
+            
             <!-- STATUS -->
             <div class="card-status">
               <div class="status" v-for="(stat,id) in pokemon.stats" :key="id">
@@ -89,6 +95,7 @@ export default {
       img:'',
       currentUrl: '',
       filter:'',
+      testeRegex:'',
       erroModal:false,
       loadShow:false,
       show:false,
@@ -111,24 +118,20 @@ export default {
     listaPokemon(){ // /'[A-Z][a-z]* [A-Z][a-z]*/ 
       if (this.filter){
         let exp = new RegExp(this.filter.trim(), "i")
-        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
-
-        /* ==============CONVERTENDO============== */
-        let urlArray = result[0].url.split('/')
-        let menosUm = urlArray.splice(-2,1)
-        console.log(result[0].url)
-        let ultimo = menosUm.pop()
-        var number = parseInt(ultimo,10)
-        /* ==============CONVERTENDO============== */
-        
-        if(number > 0){
-          this.catchPokemon(result[0].url)
-        }else{
+        let result = null
+        result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
+        console.log(result[0] == undefined)
+        if(result[0] == undefined){
           console.log("error")
+          
+        }else{
+          this.catchPokemon(result[0].url)
         }
         return this.pokemons
       }
-      else{//tem q retornar tela de erro
+      else{
+       
+        //tem q retornar tela de erro
         return this.pokemons
       }
 
