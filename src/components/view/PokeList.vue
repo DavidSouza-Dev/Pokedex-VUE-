@@ -102,36 +102,40 @@ export default {
     }
   },
   created(){
-    this.buscaDados();
-    
+    this.criaListaPokemon();
   },
   computed:{
-
-    listaPokemon(){ // /'[A-Z][a-z]* [A-Z][a-z]*/ 
+    // Realiza a busca de pokemon
+    listaPokemon(){ 
       if (this.filter){
         let exp = new RegExp(this.filter.trim(), "i")
         let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
+        console.log(result[0].url )
         let urlArray = result[0].url.split('/')
         let menosUm = urlArray.splice(-2,1)
-        console.log(result[0].url)
         let ultimo = menosUm.pop()
         var number = parseInt(ultimo,10)
+        
+        console.log(number)
         if(number > 0){
           this.clickOn(result[0].url)
-        }else{
-          console.log("error")
-    }
+        }else
+        if($('.card-status').lenght == undefined){
+          
+          this.erroProcura()
+        }
         return this.pokemons
       }
       else{//tem q retornar tela de erro
         return this.pokemons
       }
+      
 
     }
 
   },
   methods:{
-  buscaDados(){
+  criaListaPokemon(){
     axios.get(this.url)
       .then(res => {
         let data = res.data
@@ -146,6 +150,8 @@ export default {
         });
       })
   },
+
+  //Responsável por criar o efeito de scroll infinito
   eventScroll(){
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry =>{
@@ -159,10 +165,11 @@ export default {
   },
   next(){
     this.url = this.nextUrl;
-    this.buscaDados();
+    this.criaListaPokemon();
   },
-  clickOn(pokedata){ //preenche modal
-    
+
+  //Cria um modal com descrição
+  clickOn(pokedata){     
     axios.get(pokedata)
     .then(res => {
       let info = res.data
@@ -187,11 +194,9 @@ export default {
       
       status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
 
-    }).catch(error => {
-      console.log(error)
     })
-    
   },
+  //Cria um efeito de loading ao clicar no pokemon
   efeitoModal(valorBoolean){
     setTimeout(() => {
       console.log("teste")
@@ -209,17 +214,18 @@ export default {
     this.show=!this.show;
     
   },
+  //Zera o modal para próxima renderização
   zeraModal(){
     $(".tipo").remove();
     $(".status").remove();
     
   },
+
   
 
   //TODO
   renderizaCorTipo(){
     let tipo = this.pokemon.tipo;
-    /* console.log(tipo) */
     switch (tipo) {
       case 'normal':
         $(".tipo").css({backgroundColor:"gray"}) 
