@@ -10,27 +10,32 @@
       </form>
       <div class="lista" >
         <!-- lista de pokemons -->
+
         <ul class="linha" >
           <li class="poke" v-for="(pokemon,index) in listaPokemon " :key="index" >
-            <h3 class="poke" @click="clickOn(pokemon.url), loadShow=!loadShow, efeitoModal(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
+            <h3 class="poke" @click="catchPokemon(pokemon.url), loadShow=!loadShow, efeitoModal(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
           </li>
           <div class="scroll" ref="infinitescroll"></div>
         </ul>
+
         <!-------------------- MODAL ------------------->
         <!-- efeito load -->
+
         <div class="charge"  v-show="loadShow">
           <img src="../../static/POKEBALL.png" alt="">
           <div class="load">Loading...</div>
         </div>
+
         <!-- Pokemon não encontrado -->
-        <div class="nao-encontrado" v-show="erroModal" @click="erroModal=false">
+
+        <div class="nao-encontrado" v-show="erroModal" @click="erroModal=!erroModal">
           <div class="mensagem">Pokemon não encontrado! Tente Novamente.
             <img src="../../static/pngguru.com.png"  height="70" width="60" alt="">
           </div>
-          
         </div>
+
         <!-- Detalhes da procura -->
         <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
           <div class="fechar">
@@ -53,11 +58,12 @@
               </span>
               
             </div>
+            
             <!-- STATUS -->
             <div class="card-status">
               <div class="status" v-for="(stat,id) in pokemon.stats" :key="id">
                 <div v-if="id % 2 == 0" style="color:black">{{stat}}</div>
-                <div v-else-if=" id%2==1" style="backgroundColor:gray" :style="{width: `${stat}`+'px', height:10+'px'}"></div >
+                <div v-else-if=" id % 2 == 1" style="backgroundColor:gray" :style="{width: `${stat}`+'px', height:10+'px'}"></div >
               </div>
             </div>
             
@@ -65,6 +71,7 @@
         </div>
       </div>
     </div>
+    <div class="copyrights">Developed by David Souza</div>
   </div>
 </template>
 
@@ -88,6 +95,7 @@ export default {
       img:'',
       currentUrl: '',
       filter:'',
+      erroFilter:'',
       erroModal:false,
       loadShow:false,
       show:false,
@@ -110,23 +118,17 @@ export default {
       if (this.filter){
         let exp = new RegExp(this.filter.trim(), "i")
         let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
-        console.log(result[0].url )
-        let urlArray = result[0].url.split('/')
-        let menosUm = urlArray.splice(-2,1)
-        let ultimo = menosUm.pop()
-        var number = parseInt(ultimo,10)
-        
-        console.log(number)
-        if(number > 0){
-          this.clickOn(result[0].url)
-        }else
-        if($('.card-status').lenght == undefined){
-          
+        if(result[0] == undefined){
           this.erroProcura()
+          
+        }else{
+          this.catchPokemon(result[0].url)
         }
         return this.pokemons
       }
-      else{//tem q retornar tela de erro
+      else{
+       
+        //tem q retornar tela de erro
         return this.pokemons
       }
       
@@ -169,7 +171,7 @@ export default {
   },
 
   //Cria um modal com descrição
-  clickOn(pokedata){     
+  catchPokemon(pokedata){     
     axios.get(pokedata)
     .then(res => {
       let info = res.data
@@ -196,22 +198,29 @@ export default {
 
     })
   },
+
   //Cria um efeito de loading ao clicar no pokemon
-  efeitoModal(valorBoolean){
-    setTimeout(() => {
-      console.log("teste")
-      this.loadShow=!this.loadShow;
-      this.show = !valorBoolean;
-    }, 1000)
-  },
+
   filtroEfeitoModal(){
     this.loadShow=!this.loadShow;
     this.efeitoModal(this.show)
     
   },
+
+  efeitoModal(valorBoolean){
+    setTimeout(() => {
+      this.loadShow=!this.loadShow;
+      this.show = !valorBoolean;
+    }, 1000)
+  },
+
   erroProcura(){
-    this.erroModal=!this.erroModal;
-    this.show=!this.show;
+    setTimeout(() => {
+      this.show = false;
+      this.erroModal=!this.erroModal;
+    },1000)
+    
+    
     
   },
   //Zera o modal para próxima renderização
@@ -222,7 +231,6 @@ export default {
   },
 
   
-
   //TODO
   renderizaCorTipo(){
     let tipo = this.pokemon.tipo;
@@ -248,11 +256,21 @@ export default {
 
 <style lang="scss" scoped>
  
+.pokemon{
+  position: relative;
+  .copyrights{
+    position: absolute;
+    bottom:-98px;
+    right: 36px;
+    font-size: 10px;
+    opacity: .7;
 
+  }
+}
 
 .titulo{
     font-size: 50px;
-    color: #ffdd21;
+    color: #ffde21f3;
     text-shadow: #e9e9e9 1px 0px 2px;
     -webkit-text-stroke-width: 2px;
     -webkit-text-stroke-color: #00378d;
@@ -532,7 +550,7 @@ export default {
         .caracteristicas{
           display: flex;
           flex-wrap: wrap;
-          width: 80%;
+          width: 92%;
           justify-content: space-evenly;
           span{
             margin:5px;
