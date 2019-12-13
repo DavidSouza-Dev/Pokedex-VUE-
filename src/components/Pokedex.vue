@@ -19,29 +19,6 @@ export default {
      
     }
   },
-  /* created(){
-    this.buscaDados();
-    
-  },
-  methods:{
-   
-   buscaDados(){
-     axios.get(this.url)
-        .then(res => {
-          let info = res.data
-          this.nextUrl = info.next;
-          info.results.forEach(pokemon => {
-            pokemon.id = pokemon.url.split('/')
-              .filter(function(part) { return !!part;  }).pop()
-              console.log(pokemon)
-            this.pokemons.push(pokemon)
-          });
-        })
-   }
-    
-    
-  }, */
-  
 }
 </script>
 

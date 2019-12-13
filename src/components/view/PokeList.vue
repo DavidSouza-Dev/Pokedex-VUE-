@@ -115,7 +115,7 @@ export default {
   computed:{
     //Esta propertie vai avaliar o comportamento de filter que fará iteração na lista retornando um true ou false
     listaPokemon(){ 
-      if (this.filter){
+      if (this.filter){ //\b[a-zA-z]*\b
 
         let exp = new RegExp(this.filter.trim(), "i")
         let result = this.pokemons.filter(pokemon => exp.test(pokemon.name || pokemon.id))
