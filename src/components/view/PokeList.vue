@@ -189,12 +189,20 @@ export default {
     })
   },
 
-  //Cria um efeito de loading ao clicar no pokemon
-
+  //Cria um efeito de loading associado ao setTimeout
   startModalEffect(){
     this.loadShow=!this.loadShow;
   },
+  
+  modalEffect(valorBoolean){
+    setTimeout(() => {
+      this.filter ='';
+      this.loadShow=!this.loadShow;
+      this.show = !valorBoolean;
+    }, 1000)
+  },
 
+  //Gera um aviso de erro
   errorSearch(){
     setTimeout(() => {
       this.filter ='';
@@ -204,21 +212,13 @@ export default {
     },1000)
   },
 
-  modalEffect(valorBoolean){
-    setTimeout(() => {
-      this.filter ='';
-      this.loadShow=!this.loadShow;
-      this.show = !valorBoolean;
-    }, 1000)
-  },
-
+  //avalia o value inserido no form gerando um estado
   detectError(result){
-    this.searchUrl = result[0]
-    if(this.searchUrl == undefined){
+    if(result[0] == undefined){
       this.errorSearch()
     }else{
       this.modalEffect()
-      this.catchPokemon(this.searchUrl.url)
+      this.catchPokemon(result[0].url)
     }
   },
 
