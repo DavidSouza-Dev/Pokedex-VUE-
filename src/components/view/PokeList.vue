@@ -13,7 +13,7 @@
 
         <ul class="linha" >
           <li class="poke" v-for="(pokemon,index) in listaPokemon " :key="index" >
-            <h3 class="poke" @click="pokeSearch(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
+            <h3 class="poke" @click="catchPokemon(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
           </li>
@@ -37,7 +37,7 @@
         </div>
 
         <!-- Detalhes da procura -->
-        <div class="modalDetalhes" v-show="show" @click="show=!show,renderizaCorTipo()">
+        <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
           <div class="fechar">
             <font-awesome-icon :icon="['fas', 'times']"/>
           </div>
@@ -93,12 +93,15 @@ export default {
       url:"https://pokeapi.co/api/v2/pokemon",
       name:'',
       img:'',
-      currentUrl: '',
+      
+      searchUrl: '',
+
       filter:'',
       erroFilter:'',
       erroModal:false,
       loadShow:false,
       show:false,
+
       pokemon:{
         nome:'',
         tipo:[],
@@ -120,7 +123,7 @@ export default {
         let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
         
         this.detectError(result)
-        
+
         return this.pokemons
       }
       else{
@@ -134,7 +137,6 @@ export default {
 
   },
   methods:{
-
   createPokeList(){
     axios.get(this.url)
       .then(res => {
@@ -146,15 +148,13 @@ export default {
             console.log(pokemon) */
           this.id = pokemon.id;
           this.pokemons.push(pokemon)
-          
+          /* console.log(this.pokemons) */
         });
       })
-
   },
 
   //Responsável por criar o efeito de scroll infinito
   eventScroll(){
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry =>{
         if(entry.intersectionRatio > 0 && this.nextUrl){
@@ -164,18 +164,14 @@ export default {
     });
 
     observer.observe(this.$refs.infinitescroll)
-
   },
-
   next(){
-
     this.url = this.nextUrl;
     this.createPokeList();
-
   },
 
   //Cria um modal com descrição
-  pokeSearch(pokedata){  
+  catchPokemon(pokedata){  
     
     //zera a propriedade pokemon que renderiza o modal
     /************************************************/
@@ -217,43 +213,64 @@ export default {
 
   //Cria um efeito de loading ao clicar no pokemon
 
-  startModalEffect(){
-    
-    this.loadShow=!this.loadShow;
-    this.modalEffect(this.show)
-    this.errorSearch()
-    
-  },
+  startModalEffect(event){
 
-  modalEffect(valorBoolean){
+    this.loadShow=!this.loadShow;
+    event.target.reset();
     
-    setTimeout(() => {
-      this.loadShow=!this.loadShow;
-      this.show = valorBoolean;
-    }, 1000)
   },
 
   errorSearch(){
     
     setTimeout(() => {
+      this.filter ='';
+      this.loadShow=!this.loadShow;
       this.show = false;
       this.erroModal=!this.erroModal;
     },1000)
   },
 
-  detectError(a){
-    console.log(a[0].url)
-    if(a[0] == undefined){
-        this.errorSearch()
-        
-      }else{
-        this.pokeSearch(a[0].url)
-      }
+  modalEffect(valorBoolean){
+    setTimeout(() => {
+      this.filter ='';
+      this.loadShow=!this.loadShow;
+      this.show = !valorBoolean;
+    }, 1000)
   },
 
+  detectError(result){
+
+    this.searchUrl = result[0]
+    
+
+    if(this.searchUrl == undefined){
+          
+          this.errorSearch()
+          
+        }else{
+          this.modalEffect()
+          this.catchPokemon(this.searchUrl.url)
+        }
+  },
+  
+
+
+  
+  //Zera o modal para próxima renderização
+  zeraModal(){
+    this.pokemon = {
+      nome:'',
+      tipo:[],
+      peso:'',
+      altura:'',
+      stats:[]
+    }
+    
+  },
+
+  
   //TODO
   renderizaCorTipo(){
-
     let tipo = this.pokemon.tipo;
     switch (tipo) {
       case 'normal':
@@ -263,7 +280,6 @@ export default {
         $(".tipo").css({backgroundColor:"orange"});
         break;
     } 
-
   }
     
   },
