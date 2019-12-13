@@ -41,7 +41,7 @@
           <div class="fechar">
             <font-awesome-icon :icon="['fas', 'times']"/>
           </div>
-          <img class="avatar" :src="imageUrl+pokemon.id+'.png'" ref="avatarpoke">
+          <img class="avatar " id="animate" :src="imageUrl+pokemon.id+'.png'" ref="avatarpoke">
           <div class="sombra"></div>
           
           <div class="detalhes">
@@ -246,6 +246,12 @@ export default {
         $(".tipo").css({backgroundColor:"orange"});
         break;
     } 
+  },
+
+  efeito(){
+    $("li h3").click(function(){
+      console.log("teste")
+    })
   }
     
   },
@@ -355,6 +361,7 @@ export default {
           cursor: pointer;
           width:100%;
           display: flex;
+           
           h3{
             
             z-index: 99!important;
@@ -376,12 +383,9 @@ export default {
             -webkit-text-stroke-width: .4px;
             -webkit-text-stroke-color: transparent;
             justify-content: flex-end;
-            /* &:focus, &:active{
-              .modalDetalhes{
-                transform: scaleY(1)!important;
-              }
-            } */
+            
           }
+         
           span{
             padding-left: 1rem;
             margin-right: auto;
@@ -389,6 +393,7 @@ export default {
           }
           img{
             margin-left: 1.2rem;
+            
           }
            a{
             text-align:right;
@@ -530,10 +535,32 @@ export default {
 
       }
       .avatar{
+        animation: bounce 0.5s .7s linear;
         width: 96px;
         background-color: transparent;
         
       }
+      #animate{
+        animation: bounce 0.5s .7s linear;
+        
+      }
+
+      @keyframes bounce {
+          20% {
+              transform: translateY(-6px);
+          }
+          40% {
+              transform: translateY(0px);
+          }
+
+          80% {
+              transform: translateY(-2px);
+          }
+          100% {
+              transform: translateY(0);
+          }
+      }
+
       .sombra{
         background-image: radial-gradient(closest-side at 49% 67% ,#1b1b1b 3px, transparent 60%);
       }
@@ -605,21 +632,7 @@ export default {
     top: 3px;
 }
 
-@keyframes bounce {
-    20% {
-        transform: translateY(-6px);
-    }
-    40% {
-        transform: translateY(0px);
-    }
 
-    80% {
-        transform: translateY(-2px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
 
 
 
