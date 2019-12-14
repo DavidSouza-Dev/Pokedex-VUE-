@@ -2,7 +2,7 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <form class="form" @submit.prevent="startModalEffect">
+      <form class="form" @submit.prevent="startModalEffect()">
         <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
@@ -119,7 +119,12 @@ export default {
         let exp = new RegExp(this.filter.trim(), "i")
         let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
         
-        this.detectError(result)
+        if(result[0] == undefined){
+        
+          this.errorSearch()
+        }else{
+          this.pokeSearch(result[0].url)
+        }
         
         return this.pokemons
       }
@@ -146,10 +151,8 @@ export default {
             console.log(pokemon) */
           this.id = pokemon.id;
           this.pokemons.push(pokemon)
-          
         });
       })
-
   },
 
   //Responsável por criar o efeito de scroll infinito
@@ -221,7 +224,7 @@ export default {
     
     this.loadShow=!this.loadShow;
     this.modalEffect(this.show)
-    this.errorSearch()
+    
     
   },
 
@@ -229,14 +232,15 @@ export default {
     
     setTimeout(() => {
       this.loadShow=!this.loadShow;
-      this.show = valorBoolean;
+      this.show = !valorBoolean;
     }, 1000)
   },
 
   errorSearch(){
     
     setTimeout(() => {
-      this.show = false;
+      this.loadShow=!this.loadShow;
+      this.show = !this.show;
       this.erroModal=!this.erroModal;
     },1000)
   },
@@ -244,11 +248,11 @@ export default {
   detectError(a){
     console.log(a[0].url)
     if(a[0] == undefined){
-        this.errorSearch()
         
-      }else{
-        this.pokeSearch(a[0].url)
-      }
+        this.errorSearch()
+    }else{
+      this.pokeSearch(a[0].url)
+    }
   },
 
   //TODO
@@ -375,7 +379,7 @@ export default {
           display: flex;
           h3{
             
-            z-index: 99!important;
+            z-index: 2!important;
             color:rgb(253, 253, 253);
             text-shadow: #0c0c0c 1px 0px 2px;
             -webkit-text-stroke-width: 2px;
