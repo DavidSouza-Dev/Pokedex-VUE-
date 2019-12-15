@@ -2,7 +2,7 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <form class="form" @submit.prevent="startModalEffect()">
+      <form class="form" @click="show=false, erroModal=false " @submit.prevent="startModalEffect">
         <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
@@ -12,8 +12,8 @@
         <!-- lista de pokemons -->
 
         <ul class="linha" >
-          <li class="poke" v-for="(pokemon,index) in listaPokemon " :key="index" >
-            <h3 class="poke" @click="pokeSearch(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
+          <li class="poke" v-for="(pokemon,index) inpokemonList " :key="index" >
+            <h3 class="poke" @click="clickPokemon(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
           </li>
@@ -37,26 +37,23 @@
         </div>
 
         <!-- Detalhes da procura -->
-        <div class="modalDetalhes" v-show="show" @click="show=!show,renderizaCorTipo()">
+        <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
           <div class="fechar">
             <font-awesome-icon :icon="['fas', 'times']"/>
           </div>
-          <img class="avatar" :src="img" ref="avatarpoke">
+          <img class="avatar " id="animate" :src="imageUrl+pokemon.id+'.png'" ref="avatarpoke">
           <div class="sombra"></div>
           
           <div class="detalhes">
             <span class="nome">{{pokemon.nome}}</span>
+
             <!-- CARACTERISTICAS -->
             <div class="caracteristicas">
-             <!--  <div class="mensagem">Pokemon não encontrado! Tente Novamente.
-                <img src="../../static/pngguru.com.png"  height="70" width="60" alt="">
-              </div>  --> 
               <span class="peso">Weight: {{pokemon.peso}} Ib's</span>
               <span class="altura">Height: {{pokemon.altura}}'</span>
               <span class="tipo" v-for="(tipo,id) in pokemon.tipo" :key="id"  >
                 {{tipo}}
               </span>
-              
             </div>
             
             <!-- STATUS -->
@@ -66,7 +63,6 @@
                 <div v-else-if=" id % 2 == 1" style="backgroundColor:gray" :style="{width: `${stat}`+'px', height:10+'px'}"></div >
               </div>
             </div>
-            
           </div>
         </div>
       </div>
@@ -88,101 +84,75 @@ export default {
   ],
   data(){
     return {
+      url:"https://pokeapi.co/api/v2/pokemon",
       pokemons: [],
       nextUrl: '',
-      url:"https://pokeapi.co/api/v2/pokemon",
+      
+      urlNext:"https://pokeapi.co/api/v2/pokemon",
+      fullPokeList:[],
+      fullNextUrl:'',
+
       name:'',
-      img:'',
-      currentUrl: '',
+      
+      searchUrl: '',
+
       filter:'',
       erroFilter:'',
       erroModal:false,
       loadShow:false,
       show:false,
+
       pokemon:{
+        id:'',
         nome:'',
         tipo:[],
         peso:'',
         altura:'',
         stats:[]
-
       }
     }
   },
+
   created(){
     this.createPokeList();
+    this.fullSearchList();
   },
+
   computed:{
-    // Realiza a busca de pokemon
-    listaPokemon(){ 
-      if (this.filter){
+    //Esta propertie vai avaliar o comportamento de filter que fará iteração na lista retornando um true ou false
+    pokemonList(){ 
+      if (this.filter){ //\b[a-zA-z]*\b
+
         let exp = new RegExp(this.filter.trim(), "i")
-        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name))
-        
-        if(result[0] == undefined){
-        
-          this.errorSearch()
-        }else{
-          this.pokeSearch(result[0].url)
-        }
-        
+        let result = this.pokemons.filter(pokemon => exp.test(pokemon.name || pokemon.id))
+        this.detectError(result)
+
         return this.pokemons
       }
       else{
-       
-        //tem q retornar tela de erro
         return this.pokemons
       }
-      
+    },
+},
 
-    }
-
-  },
   methods:{
-
   createPokeList(){
     axios.get(this.url)
-      .then(res => {
-        let data = res.data
-        this.nextUrl = data.next;
-        data.results.forEach(pokemon => {
-          /* pokemon.id = pokemon.url.split('/')
-            .filter(function(part) { return !!part;  }).pop()
-            console.log(pokemon) */
-          this.id = pokemon.id;
-          this.pokemons.push(pokemon)
-        });
-      })
-  },
-
-  //Responsável por criar o efeito de scroll infinito
-  eventScroll(){
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry =>{
-        if(entry.intersectionRatio > 0 && this.nextUrl){
-          this.next();
-        }
+    .then(res => {
+      let data = res.data
+      this.nextUrl = data.next;
+      data.results.forEach(pokemon => {
+        this.pokemons.push(pokemon)
       });
-    });
-
-    observer.observe(this.$refs.infinitescroll)
-
+    })
   },
 
-  next(){
-
-    this.url = this.nextUrl;
-    this.createPokeList();
-
-  },
-
-  //Cria um modal com descrição
-  pokeSearch(pokedata){  
+  clickPokemon(pokedata){  
     
     //zera a propriedade pokemon que renderiza o modal
     /************************************************/
     this.pokemon = {
+      id:'',
       nome:'',
       tipo:[],
       peso:'',
@@ -194,70 +164,124 @@ export default {
     axios.get(pokedata)
     .then(res => {
       let info = res.data
-      /* console.log(info) */
-      this.img = info.sprites.front_default //tem q mudar esse endereço
-      /* var total = $("caracteristicas").children()
-      console.log(total) */
+
+      this.pokemon.id = info.id
       this.pokemon.nome = info.name;
-      info.types.forEach(type => {
-        while(this.pokemon.tipo.lenght>0){
-          console.log(this.pokemon.tipo)
-          this.pokemon.tipo.pop()
-        }
-        this.pokemon.tipo.push(type.type.name)
-        
-      });
-      console.log(this.pokemon.tipo)
+      info.types.forEach(dados => this.pokemon.tipo.push(dados.type.name));
       this.pokemon.peso = info.weight;
       this.pokemon.altura = info.height;
       var status = info.stats
-      /* console.log(status[0].base_stat) */
-      
-      status.forEach(stat => this.pokemon.stats.push(stat.stat.name,stat.base_stat));
+      status.forEach(dados => this.pokemon.stats.push(dados.stat.name,dados.base_stat));
 
     })
   },
 
-  //Cria um efeito de loading ao clicar no pokemon
+  fullSearchList(){
 
-  startModalEffect(){
+     //zera a propriedade pokemon que renderiza o modal
+    /************************************************/
+    this.pokemon = {
+      id:'',
+      nome:'',
+      tipo:[],
+      peso:'',
+      altura:'',
+      stats:[]
+    }
+    /************************************************/
     
-    this.loadShow=!this.loadShow;
-    this.modalEffect(this.show)
-    
-    
+    axios.get(this.urlNext)
+    .then(res => {
+      let info = res.data
+      this.fullNextUrl = info.next;
+      info.results.forEach(pokemon => {
+        this.fullPokeList.push(pokemon)
+      });
+      
+      
+    })
+
   },
 
+  //Responsável por criar o efeito de scroll infinito
+  eventScroll(){
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry =>{
+        if(entry.intersectionRatio > 0 && this.nextUrl){
+          this.next();
+        }
+      });
+    });
+
+    observer.observe(this.$refs.infinitescroll)
+  },
+  //alimenta a lista de pokemons
+  next(){
+    this.url = this.nextUrl;
+    this.createPokeList();
+  },
+
+  nextSearch(){
+    this.urlNext = this.fullNextUrl;
+    this.fullSearchList();
+  },
+
+  //Cria um modal com descrição
+
+  //Cria um efeito de loading associado ao setTimeout
+  startModalEffect(){
+    this.loadShow=!this.loadShow;
+  },
+  
   modalEffect(valorBoolean){
-    
     setTimeout(() => {
+      this.filter ='';
       this.loadShow=!this.loadShow;
       this.show = !valorBoolean;
     }, 1000)
   },
 
+  //Gera um aviso de erro
   errorSearch(){
-    
     setTimeout(() => {
+      this.filter ='';
       this.loadShow=!this.loadShow;
-      this.show = !this.show;
+      this.show = false;
       this.erroModal=!this.erroModal;
     },1000)
   },
 
-  detectError(a){
-    console.log(a[0].url)
-    if(a[0] == undefined){
-        
-        this.errorSearch()
-    }else{
-      this.pokeSearch(a[0].url)
+  //avalia o value inserido no form gerando um estado
+  detectError(result){
+    if(result[0].url){
+      this.modalEffect()
+      this.clickPokemon(result[0].url)
+    }else
+    if(result[0] == undefined && this.fullPokeList.next != null){
+      this.nextSearch()
+      this.catchPokemon()
+      
+    }else
+    {
+      this.errorSearch()
     }
   },
 
+   
+  //Zera o modal para próxima renderização
+  zeraModal(){
+    this.pokemon = {
+      id:'',
+      nome:'',
+      tipo:[],
+      peso:'',
+      altura:'',
+      stats:[]
+    }
+  },
+ 
   //TODO
   renderizaCorTipo(){
-
     let tipo = this.pokemon.tipo;
     switch (tipo) {
       case 'normal':
@@ -267,13 +291,18 @@ export default {
         $(".tipo").css({backgroundColor:"orange"});
         break;
     } 
+  },
 
+  efeito(){
+    $(".poke").click(function(){
+      console.log("teste")
+    })
   }
     
   },
   mounted(){
     this.eventScroll();
-    
+    this.efeito();
   }
   
 }
@@ -377,6 +406,7 @@ export default {
           cursor: pointer;
           width:100%;
           display: flex;
+           
           h3{
             
             z-index: 2!important;
@@ -398,12 +428,9 @@ export default {
             -webkit-text-stroke-width: .4px;
             -webkit-text-stroke-color: transparent;
             justify-content: flex-end;
-            /* &:focus, &:active{
-              .modalDetalhes{
-                transform: scaleY(1)!important;
-              }
-            } */
+            
           }
+         
           span{
             padding-left: 1rem;
             margin-right: auto;
@@ -411,6 +438,7 @@ export default {
           }
           img{
             margin-left: 1.2rem;
+            
           }
            a{
             text-align:right;
@@ -552,10 +580,32 @@ export default {
 
       }
       .avatar{
+        animation: bounce 0.5s .7s linear;
         width: 96px;
         background-color: transparent;
         
       }
+      #animate{
+        animation: bounce 0.5s .7s linear;
+        
+      }
+
+      @keyframes bounce {
+          20% {
+              transform: translateY(-6px);
+          }
+          40% {
+              transform: translateY(0px);
+          }
+
+          80% {
+              transform: translateY(-2px);
+          }
+          100% {
+              transform: translateY(0);
+          }
+      }
+
       .sombra{
         background-image: radial-gradient(closest-side at 49% 67% ,#1b1b1b 3px, transparent 60%);
       }
@@ -627,21 +677,7 @@ export default {
     top: 3px;
 }
 
-@keyframes bounce {
-    20% {
-        transform: translateY(-6px);
-    }
-    40% {
-        transform: translateY(0px);
-    }
 
-    80% {
-        transform: translateY(-2px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
 
 
 
