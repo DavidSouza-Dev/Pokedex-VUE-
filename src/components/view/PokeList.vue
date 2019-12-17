@@ -12,7 +12,7 @@
         <!-- lista de pokemons -->
 
         <ul class="linha" >
-          <li class="poke" v-for="(pokemon,index) inpokemonList " :key="index" >
+          <li class="poke" v-for="(pokemon,index) in pokemonList " :key="index" >
             <h3 class="poke" @click="clickPokemon(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
@@ -88,7 +88,7 @@ export default {
       pokemons: [],
       nextUrl: '',
       
-      urlNext:"https://pokeapi.co/api/v2/pokemon",
+      urlNext:'',
       fullPokeList:[],
       fullNextUrl:'',
 
@@ -116,6 +116,7 @@ export default {
   created(){
     this.createPokeList();
     this.fullSearchList();
+    
   },
 
   computed:{
@@ -126,13 +127,21 @@ export default {
         let exp = new RegExp(this.filter.trim(), "i")
         let result = this.pokemons.filter(pokemon => exp.test(pokemon.name || pokemon.id))
         this.detectError(result)
-
+        
         return this.pokemons
       }
       else{
         return this.pokemons
       }
     },
+    createSecondList(){
+
+      for(var i = 0; i<=48; i++){
+        this.next()
+      }
+      
+      return null
+    }
 },
 
   methods:{
@@ -189,7 +198,6 @@ export default {
       stats:[]
     }
     /************************************************/
-    
     axios.get(this.urlNext)
     .then(res => {
       let info = res.data
@@ -201,6 +209,13 @@ export default {
       
     })
 
+  },
+
+  modalBySearch(show){
+    let urlSearch = this.url+'/'+this.filter
+   /*  console.log(urlSearch) */
+   this.modalEffect(show)
+   this.clickPokemon(urlSearch)
   },
 
   //Responsável por criar o efeito de scroll infinito
@@ -217,13 +232,23 @@ export default {
   },
   //alimenta a lista de pokemons
   next(){
+    console.log(this.url)
     this.url = this.nextUrl;
     this.createPokeList();
   },
 
   nextSearch(){
-    this.urlNext = this.fullNextUrl;
-    this.fullSearchList();
+    console.log("testenext"+this.fullNextUrl)
+    if(this.urlNext == ''){
+      this.urlNext = this.url;
+      console.log("testeteste"+this.urlNext)
+      this.fullSearchList();
+    }else{
+      this.urlNext = this.fullNextUrl
+      this.fullSearchList();
+    }
+    
+    
   },
 
   //Cria um modal com descrição
@@ -231,6 +256,7 @@ export default {
   //Cria um efeito de loading associado ao setTimeout
   startModalEffect(){
     this.loadShow=!this.loadShow;
+    this.modalBySearch()
   },
   
   modalEffect(valorBoolean){
@@ -238,11 +264,12 @@ export default {
       this.filter ='';
       this.loadShow=!this.loadShow;
       this.show = !valorBoolean;
-    }, 1000)
+    }, 1500)
   },
 
   //Gera um aviso de erro
   errorSearch(){
+    
     setTimeout(() => {
       this.filter ='';
       this.loadShow=!this.loadShow;
@@ -253,17 +280,18 @@ export default {
 
   //avalia o value inserido no form gerando um estado
   detectError(result){
-    if(result[0].url){
+   /*  if(result[0].url){
       this.modalEffect()
       this.clickPokemon(result[0].url)
-    }else
-    if(result[0] == undefined && this.fullPokeList.next != null){
-      this.nextSearch()
-      this.catchPokemon()
-      
+    }else */
+    if(result[0] == undefined/*  && this.fullPokeList.next != null */){
+     /*  this.errorSearch() */
+     
+     
     }else
     {
-      this.errorSearch()
+     /*  this.modalEffect()
+      this.clickPokemon(result[0].url) */
     }
   },
 
@@ -301,6 +329,7 @@ export default {
     
   },
   mounted(){
+    
     this.eventScroll();
     this.efeito();
   }
@@ -364,13 +393,19 @@ export default {
       .icon{
         cursor: pointer;
         display: flex;
-        transform: scale(.6);
+        justify-content: center;
+        align-items: center;
+        transform: scale(.8);
         color: #05050580;
         background-color: white;
         font-size: 10px;
         height: inherit;
         width: 10%;
         border:none;
+        svg{
+          width: 50px;
+          height: 50px;
+        }
         &:hover,&:focus{
           color:black;
         }
@@ -575,7 +610,7 @@ export default {
           background-color: rgba(255, 255, 255, 0.664);
         }
         svg{
-          transform: scale(.5);
+          height: 23px;
         }
 
       }
