@@ -375,7 +375,7 @@ export default {
         width: 10%;
         border:none;
         svg{
-          width: 50px;
+          /* width: 50px; */
           height: 50px;
         }
         &:hover,&:focus{
