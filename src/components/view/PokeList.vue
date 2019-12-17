@@ -12,7 +12,7 @@
         <!-- lista de pokemons -->
 
         <ul class="linha" >
-          <li class="poke" v-for="(pokemon,index) in pokemonList " :key="index" >
+          <li class="poke" v-for="(pokemon,index) in pokemons " :key="index" >
             <h3 class="poke" @click="clickPokemon(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
@@ -115,7 +115,7 @@ export default {
 
   created(){
     this.createPokeList();
-    this.fullSearchList();
+   
     
   },
 
@@ -185,32 +185,6 @@ export default {
     })
   },
 
-  fullSearchList(){
-
-     //zera a propriedade pokemon que renderiza o modal
-    /************************************************/
-    this.pokemon = {
-      id:'',
-      nome:'',
-      tipo:[],
-      peso:'',
-      altura:'',
-      stats:[]
-    }
-    /************************************************/
-    axios.get(this.urlNext)
-    .then(res => {
-      let info = res.data
-      this.fullNextUrl = info.next;
-      info.results.forEach(pokemon => {
-        this.fullPokeList.push(pokemon)
-      });
-      
-      
-    })
-
-  },
-
   modalBySearch(show){
     let urlSearch = this.url+'/'+this.filter
    /*  console.log(urlSearch) */
@@ -232,16 +206,14 @@ export default {
   },
   //alimenta a lista de pokemons
   next(){
-    console.log(this.url)
+    /* console.log(this.url) */
     this.url = this.nextUrl;
     this.createPokeList();
   },
 
   nextSearch(){
-    console.log("testenext"+this.fullNextUrl)
     if(this.urlNext == ''){
       this.urlNext = this.url;
-      console.log("testeteste"+this.urlNext)
       this.fullSearchList();
     }else{
       this.urlNext = this.fullNextUrl
