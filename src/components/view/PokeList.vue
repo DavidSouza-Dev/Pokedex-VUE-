@@ -187,7 +187,8 @@ export default {
 
   modalBySearch(show){
     let urlSearch = this.url+'/'+this.filter
-   /*  console.log(urlSearch) */
+    console.log("teste 123"+urlSearch)
+    console.log("testeteste"+ this.filter)
    this.modalEffect(show)
    this.clickPokemon(urlSearch)
   },
@@ -376,7 +377,7 @@ export default {
         border:none;
         svg{
           /* width: 50px; */
-          height: 50px;
+          height: 23px;
         }
         &:hover,&:focus{
           color:black;
