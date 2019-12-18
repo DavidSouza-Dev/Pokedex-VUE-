@@ -45,7 +45,7 @@
           <div class="sombra"></div>
           
           <div class="detalhes">
-            <span class="nome">{{pokemon.nome}}</span>
+            <span class="nome">#{{pokemon.id}} {{pokemon.nome}}</span>
 
             <!-- CARACTERISTICAS -->
             <div class="caracteristicas">
@@ -173,7 +173,7 @@ export default {
     axios.get(pokedata)
     .then(res => {
       let info = res.data
-
+      console.log(info)
       this.pokemon.id = info.id
       this.pokemon.nome = info.name;
       info.types.forEach(dados => this.pokemon.tipo.push(dados.type.name));
@@ -186,7 +186,7 @@ export default {
   },
 
   modalBySearch(show){
-    let urlSearch = this.url+'/'+this.filter
+    let urlSearch = `${this.url}/${this.filter}`
     console.log("teste 123"+urlSearch)
     console.log("testeteste"+ this.filter)
    this.modalEffect(show)
