@@ -2,8 +2,8 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <form class="form" @click="show=false, erroModal=false " @submit.prevent="startModalEffect">
-        <input type="search" id="filtro" autocomplete="off" v-model.lazy.trim="filter" placeholder="Search Pokemon by Id or Name">
+      <form class="form" @click="show=false, erroModal=false " @submit.prevent="startModalEffect()">
+        <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
         </button>
@@ -13,7 +13,7 @@
 
         <ul class="linha" >
           <li class="poke" v-for="(pokemon,index) in pokemons " :key="index" >
-            <h3 class="poke" @click="clickPokemon(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}} 
+            <h3 class="poke" @click="clickPokemon(pokemon.url), loadShow=!loadShow, modalEffect(show) " ><span>#{{("000"+ (index+1)).slice(-3)}}</span> {{pokemon.name}}
               <img :src="imageUrl + (index+1) + '.png'" height="40" width="40">
             </h3>
           </li>
@@ -83,16 +83,17 @@ export default {
     
   ],
   data(){
+    let base = 'https://pokeapi.co/api/v2/pokemon'
     return {
-      url:"https://pokeapi.co/api/v2/pokemon",
+      url: base,
       pokemons: [],
       nextUrl: '',
 
-      urlFilter:'https://pokeapi.co/api/v2/pokemon',
+      urlFilter:base,
       searchUrl: '',
 
       filter:'',
-      erroFilter:'',
+      codeRequest:'',
       erroModal:false,
       loadShow:false,
       show:false,
@@ -110,13 +111,11 @@ export default {
 
   created(){
     this.createPokeList();
-   
-    
   },
 
   computed:{
     //Esta propertie vai avaliar o comportamento de filter que fará iteração na lista retornando um true ou false
-    pokemonList(){ 
+    /* pokemonList(){ 
       if (this.filter){ //\b[a-zA-z]*\b
 
         let exp = new RegExp(this.filter.trim(), "i")
@@ -128,21 +127,22 @@ export default {
       else{
         return this.pokemons
       }
-    }
-},
-
-  methods:{
-  createPokeList(){
-    axios.get(this.url)
-    .then(res => {
-      let data = res.data
-      this.nextUrl = data.next;
-      data.results.forEach(pokemon => {
-        this.pokemons.push(pokemon)
-      });
-    })
+    }, */
   },
 
+  methods:{
+    createPokeList(){
+      axios.get(this.url)
+      .then(res => {
+        let data = res.data
+        this.nextUrl = data.next;
+        data.results.forEach(pokemon => {
+          this.pokemons.push(pokemon)
+        });
+      })
+    },
+
+  //Cria modal ao clicar na lista
   clickPokemon(pokedata){  
     
     //zera a propriedade pokemon que renderiza o modal
@@ -157,30 +157,33 @@ export default {
     }
     /************************************************/
 
+    let self = this
     axios.get(pokedata)
     .then(res => {
       let info = res.data
-      console.log(info)
+      console.log("teste"+info)
       this.pokemon.id = info.id
-      this.pokemon.nome = info.name;
-      info.types.forEach(dados => this.pokemon.tipo.push(dados.type.name));
-      this.pokemon.peso = info.weight;
-      this.pokemon.altura = info.height;
+      self.pokemon.nome = info.name;
+      info.types.forEach(dados => self.pokemon.tipo.push(dados.type.name));
+      self.pokemon.peso = info.weight;
+      self.pokemon.altura = info.height;
       var status = info.stats
-      status.forEach(dados => this.pokemon.stats.push(dados.stat.name,dados.base_stat));
+      status.forEach(dados => self.pokemon.stats.push(dados.stat.name,dados.base_stat));
 
+      self.codeRequest = res.status
+      console.log("testes"+self.codeRequest)
+      let show = false
+      this.modalEffect(show)
+      
+    }, err => {
+        self.codeRequest = err.response.status
+        console.log("error"+self.codeRequest)
+        this.errorSearch()
+        
     })
   },
 
-  modalBySearch(show){
-    let urlSearch = `${this.urlFilter.trim()}/${this.filter}`
-    this.teste = urlSearch
-    console.log("teste 123"+urlSearch)
-    console.log("testeteste"+ typeof this.filter)
-   this.modalEffect(show)
-   this.clickPokemon(urlSearch.toLowerCase())
-  },
-
+  
   //Responsável por criar o efeito de scroll infinito
   eventScroll(){
     const observer = new IntersectionObserver((entries) => {
@@ -193,33 +196,27 @@ export default {
 
     observer.observe(this.$refs.infinitescroll)
   },
+  
   //alimenta a lista de pokemons
   next(){
-    /* console.log(this.url) */
     this.url = this.nextUrl;
     this.createPokeList();
   },
 
-  nextSearch(){
-    if(this.urlNext == ''){
-      this.urlNext = this.url;
-      this.fullSearchList();
-    }else{
-      this.urlNext = this.fullNextUrl
-      this.fullSearchList();
-    }
-    
-    
-  },
-
-  //Cria um modal com descrição
-
-  //Cria um efeito de loading associado ao setTimeout
+  //start um efeito de loading associado ao setTimeout
   startModalEffect(){
     this.loadShow=!this.loadShow;
-    this.modalBySearch()
+    this.getUrlForm()
+    
   },
-  
+
+  //Pega o value do form e o trata
+  getUrlForm(){
+   let urlSearch = `${this.urlFilter.trim()}/${this.filter}`
+   this.clickPokemon(urlSearch.toLowerCase())
+  },
+
+  //cria um modal após load
   modalEffect(valorBoolean){
     setTimeout(() => {
       this.filter ='';
@@ -228,9 +225,8 @@ export default {
     }, 1500)
   },
 
-  //Gera um aviso de erro
+  //Gera um aviso de erro após o load
   errorSearch(){
-    
     setTimeout(() => {
       this.filter ='';
       this.loadShow=!this.loadShow;
@@ -240,21 +236,21 @@ export default {
   },
 
   //avalia o value inserido no form gerando um estado
-  detectError(result){
-   /*  if(result[0].url){
+   /*detectError(result){
+    if(result[0].url){
       this.modalEffect()
       this.clickPokemon(result[0].url)
     }else */
-    if(result[0] == undefined/*  && this.fullPokeList.next != null */){
+    /* if(result[0] == undefined && this.fullPokeList.next != null){ */
      /*  this.errorSearch() */
      
-     
+    /* 
     }else
     {
-     /*  this.modalEffect()
-      this.clickPokemon(result[0].url) */
+       this.modalEffect()
+      this.clickPokemon(result[0].url) 
     }
-  },
+  },*/
 
    
   //Zera o modal para próxima renderização
@@ -280,19 +276,12 @@ export default {
         $(".tipo").css({backgroundColor:"orange"});
         break;
     } 
+   },
   },
 
-  efeito(){
-    $(".poke").click(function(){
-      console.log("teste")
-    })
-  }
-    
-  },
   mounted(){
-    
     this.eventScroll();
-    this.efeito();
+    
   }
   
 }

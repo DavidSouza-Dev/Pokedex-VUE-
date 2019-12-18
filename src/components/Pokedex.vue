@@ -16,7 +16,6 @@ export default {
   data(){
     return {
      imageUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'
-     
     }
   },
 }
