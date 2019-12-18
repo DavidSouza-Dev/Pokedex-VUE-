@@ -3,7 +3,7 @@
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
       <form class="form" @click="show=false, erroModal=false " @submit.prevent="startModalEffect">
-        <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
+        <input type="search" id="filtro" autocomplete="off" v-model.lazy.trim="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
         </button>
@@ -87,13 +87,9 @@ export default {
       url:"https://pokeapi.co/api/v2/pokemon",
       pokemons: [],
       nextUrl: '',
-      
-      urlNext:'',
-      fullPokeList:[],
-      fullNextUrl:'',
 
-      name:'',
-      
+      urlFilter:'https://pokeapi.co/api/v2/pokemon',
+     
       searchUrl: '',
 
       filter:'',
@@ -133,14 +129,6 @@ export default {
       else{
         return this.pokemons
       }
-    },
-    createSecondList(){
-
-      for(var i = 0; i<=48; i++){
-        this.next()
-      }
-      
-      return null
     }
 },
 
@@ -186,9 +174,9 @@ export default {
   },
 
   modalBySearch(show){
-    let urlSearch = `${this.url}/${this.filter}`
+    let urlSearch = `${this.urlFilter}/${this.filter}`
     console.log("teste 123"+urlSearch)
-    console.log("testeteste"+ this.filter)
+    console.log("testeteste"+ typeof this.filter)
    this.modalEffect(show)
    this.clickPokemon(urlSearch)
   },
