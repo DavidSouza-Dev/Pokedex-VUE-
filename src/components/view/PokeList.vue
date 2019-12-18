@@ -45,7 +45,7 @@
           <div class="sombra"></div>
           
           <div class="detalhes">
-            <span class="nome">#{{pokemon.id}} {{pokemon.nome}}</span>
+            <span class="nome">#{{pokemon.id}} {{pokemon.nome}} {{teste}}</span>
 
             <!-- CARACTERISTICAS -->
             <div class="caracteristicas">
@@ -89,7 +89,7 @@ export default {
       nextUrl: '',
 
       urlFilter:'https://pokeapi.co/api/v2/pokemon',
-     
+      teste:'',
       searchUrl: '',
 
       filter:'',
@@ -174,7 +174,8 @@ export default {
   },
 
   modalBySearch(show){
-    let urlSearch = `${this.urlFilter}/${this.filter}`
+    let urlSearch = `${this.urlFilter.trim()}/${this.filter}`
+    this.teste = urlSearch
     console.log("teste 123"+urlSearch)
     console.log("testeteste"+ typeof this.filter)
    this.modalEffect(show)
