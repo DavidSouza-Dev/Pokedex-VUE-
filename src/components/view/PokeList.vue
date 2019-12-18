@@ -45,7 +45,7 @@
           <div class="sombra"></div>
           
           <div class="detalhes">
-            <span class="nome">#{{pokemon.id}} {{pokemon.nome}} {{teste}}</span>
+            <span class="nome">#{{pokemon.id}} {{pokemon.nome}}</span>
 
             <!-- CARACTERISTICAS -->
             <div class="caracteristicas">
@@ -89,7 +89,6 @@ export default {
       nextUrl: '',
 
       urlFilter:'https://pokeapi.co/api/v2/pokemon',
-      teste:'',
       searchUrl: '',
 
       filter:'',
