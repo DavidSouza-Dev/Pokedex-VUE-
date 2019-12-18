@@ -179,7 +179,7 @@ export default {
     console.log("teste 123"+urlSearch)
     console.log("testeteste"+ typeof this.filter)
    this.modalEffect(show)
-   this.clickPokemon(urlSearchstr.toLowerCase())
+   this.clickPokemon(urlSearch.toLowerCase())
   },
 
   //Responsável por criar o efeito de scroll infinito
