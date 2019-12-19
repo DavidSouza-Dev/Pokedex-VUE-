@@ -2,7 +2,7 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <form class="form" @click="loadShow=!loadShow, show=false, erroModal=false " @submit.prevent="startModalEffect()">
+      <form class="form" @click="loadShow=false, show=false, erroModal=false " @submit.prevent="startModalEffect()">
         <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
