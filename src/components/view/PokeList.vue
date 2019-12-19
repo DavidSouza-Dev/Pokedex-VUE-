@@ -221,7 +221,6 @@ export default {
     console.log(this.loadShow)
     setTimeout(() => {
       this.filter ='';
-      this.loadShow=!this.loadShow
       this.show = !valorBoolean;
     }, 1500)
   },
@@ -231,7 +230,6 @@ export default {
     setTimeout(() => {
       this.filter ='';
       this.show = false;
-      this.loadShow=!this.loadShow
       this.erroModal=!this.erroModal;
     },1000)
   },
