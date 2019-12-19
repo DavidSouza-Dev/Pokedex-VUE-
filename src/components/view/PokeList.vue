@@ -2,7 +2,7 @@
   <div class="pokemon">
     <h1 class="titulo">Pokédex</h1>
     <div class="conteudo">
-      <form class="form" @click="show=false, erroModal=false " @submit.prevent="startModalEffect()">
+      <form class="form" @click="loadShow=!loadShow, show=false, erroModal=false " @submit.prevent="startModalEffect()">
         <input type="search" id="filtro" autocomplete="off" v-model.lazy="filter" placeholder="Search Pokemon by Id or Name">
         <button class="icon" >
           <font-awesome-icon :icon="['fas', 'search']"/>
@@ -37,7 +37,7 @@
         </div>
 
         <!-- Detalhes da procura -->
-        <div class="modalDetalhes" v-show="show" @click="show=!show, zeraModal(),renderizaCorTipo()">
+        <div class="modalDetalhes" v-show="show" @click="loadShow=!loadShow, show=!show, zeraModal(),renderizaCorTipo()">
           <div class="fechar">
             <font-awesome-icon :icon="['fas', 'times']"/>
           </div>
@@ -45,8 +45,8 @@
           <div class="sombra"></div>
           
           <div class="detalhes">
-            <span class="nome">#{{pokemon.id}} {{pokemon.nome}}</span>
-
+           <!--  <img class="miniPokeball" src="../../static/pokebola.jpg" alt=""> -->
+            <span class="nome">#{{("000"+pokemon.id).slice(-3)}} {{pokemon.nome}}</span>
             <!-- CARACTERISTICAS -->
             <div class="caracteristicas">
               <span class="peso">Weight: {{pokemon.peso}} Ib's</span>
@@ -218,9 +218,10 @@ export default {
 
   //cria um modal após load
   modalEffect(valorBoolean){
+    console.log(this.loadShow)
     setTimeout(() => {
       this.filter ='';
-      this.loadShow=!this.loadShow;
+      this.loadShow=!this.loadShow
       this.show = !valorBoolean;
     }, 1500)
   },
@@ -229,8 +230,8 @@ export default {
   errorSearch(){
     setTimeout(() => {
       this.filter ='';
-      this.loadShow=!this.loadShow;
       this.show = false;
+      this.loadShow=!this.loadShow
       this.erroModal=!this.erroModal;
     },1000)
   },
@@ -595,6 +596,7 @@ export default {
         background-image: radial-gradient(closest-side at 49% 67% ,#1b1b1b 3px, transparent 60%);
       }
       .detalhes{
+        position:relative;
         width: 98%;
         height: 68%;
         background-color: whitesmoke;
@@ -604,7 +606,16 @@ export default {
         flex-direction: column;
         align-items: center;
         justify-content: space-evenly;
+        .miniPokeball{
+          position: absolute;
+          top:0;
+          left:0;
+          height: 13px;
+          width: 13 px;
+          transform: translate(85px, 13px) rotate(27deg);
+        }
         .nome{
+          font-size: 20px;
           text-transform: uppercase;
           font-weight: bold;
         }
